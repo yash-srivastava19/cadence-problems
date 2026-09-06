@@ -26,6 +26,7 @@ README and keep it anyway, but do not pretend it is testing anything.
 | multi-seed variance (`sandbox.seeds`) | circle-packing | partial |
 | `--resume` after a killed run | — | **gap** |
 | `--config` manifest override | ablation arms (pending) | available |
+| error text on a malformed project | mistakes/ (9 cases) | covered |
 | concurrent runs, distinct ids | ad hoc, 2026-09-06 | covered |
 | no `DATABASE_URL` (in-memory run) | — | **gap** |
 

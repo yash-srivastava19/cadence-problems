@@ -1,0 +1,3 @@
+api_version: cadence/v1alpha2
+program: nowhere.py
+metrics: {value: maximize}

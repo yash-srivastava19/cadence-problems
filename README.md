@@ -16,7 +16,11 @@ part of cadence to the problem that uses it. Gaps are visible on purpose.
 which cadence commit, what ran, what it answered, what it revealed. That log
 is how a product proposition gets built out of evidence rather than memory.
 
-**3. Produce numbers.** Each problem's README carries its own results and the
+**3. Anticipate mistakes.** [`mistakes/`](mistakes/) holds one broken
+project per way a user gets it wrong, each asserting what cadence says about
+it. A first hour is mostly errors, so the error text is the product.
+
+**4. Produce numbers.** Each problem's README carries its own results and the
 published figures it is measured against.
 
 ## Layout
@@ -28,6 +32,7 @@ problems/<name>/     one problem, one cadence project root
   score.py           the verifier — outside the markers, never edited
   IMPROVE.md         what the model is told
   README.md          provenance, published numbers, our numbers
+mistakes/            deliberately broken projects — is the error any good?
 demos/               dated session records — the audit log
 baselines/           control arms, for judging the search honestly
 COVERAGE.md          feature → problem
