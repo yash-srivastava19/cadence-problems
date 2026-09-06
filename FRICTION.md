@@ -79,3 +79,42 @@ internals of a tool they just installed.
 same `except CadenceError: die(...)` the run path already has. The message
 should also name the likely cause -- "is the database running?" -- since a
 refused connection almost always means the container is down.
+
+---
+
+## 2026-09-06 -- a killed run stays "running" forever
+
+`cadence runs list` shows four runs as `running` that were started on 29 and
+30 August. Their processes are long gone.
+
+Nothing marks a run dead. `RunFinished` is published by the loop, so a run
+whose process is killed -- Ctrl-C, OOM, a laptop closing -- never writes a
+terminal status and the row says `running` indefinitely.
+
+**Severity: medium, and it corrupts the experiment.** The one command for
+"what is happening" reports things that are not happening. Any later analysis
+that filters on `status = 'running'` is wrong.
+
+**Fix shape:** a heartbeat column the loop touches, and `runs list` showing
+anything stale as `stalled` rather than `running`. `runs.reason` already
+exists to hold why.
+
+Related: this is the same gap as `--resume`. A run that can be resumed is by
+definition one that stopped without saying so.
+
+---
+
+## 2026-09-06 -- `cadence run examples/lab` fails out of the box
+
+    TerminalModelError: the scripted backend ran out of responses
+
+The lab example's manifest leaves `model` at the default, `scripted`, whose
+canned answers are supplied by `demo.py`. Run through the CLI instead, it
+exhausts them on the first call and the run fails with 0 trials.
+
+**Severity: low as a bug, high as a first impression.** It is the smaller of
+the two examples, so it is what someone tries first.
+
+**Fix shape:** either give the manifest enough scripted responses to complete
+its 2 trials, or say in the example's README that it is driven by `demo.py`
+and not by `cadence run`.
