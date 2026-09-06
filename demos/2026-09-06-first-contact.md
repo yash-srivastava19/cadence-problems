@@ -48,7 +48,9 @@ Seven observations, raised separately — see the tracker. Ranked:
    internals before the useful sentence.
 6. **medium** — search methods are not pluggable; `registry.py` holds one
    hardcoded entry. Baseline arms must live outside cadence.
-7. **low** — `check` accepts `--json` but not `--no-json`; `run` accepts both.
+7. **low — FIXED** — `check` now accepts `--json/--no-json` like `run` and
+   `runs list`. Default stays off: check is read by a person far more often
+   than by a pipe.
 
 ## What went well
 
@@ -62,8 +64,14 @@ Which is exactly why #1 above matters.
 
 ## Follow-up, same session
 
-Fixes 1 and 3 landed on cadence `fix/preflight-scripted-and-config`
-(`c7db80a`): 703 tests pass, mypy and ruff clean. The remaining five are
+Fixes 1, 3 and 7 landed on cadence `fix/preflight-scripted-and-config`
+(`48737c7`, `fa92c6f`): 703 tests pass, mypy and ruff clean.
+
+Two properties confirmed before trusting `--config` for the arms: a manifest
+outside the project root resolves the program against root correctly, and two
+arms differing only in `budget.trials` hash differently (`cd223c08…` vs
+`2930d60c…`). The second matters — arms sharing a `manifest_hash` would be
+indistinguishable in the `runs` table and the ablation would be unanalyzable. The remaining five are
 noted in that repo's local `thoughts/`.
 
 One question came out of fixing them, and it is bigger than any of the seven:
