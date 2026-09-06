@@ -1,0 +1,26 @@
+api_version: cadence/v1alpha2
+program: pack.py
+experiment: circle-packing-26
+
+# score.py is what runs; pack.py is what gets edited. Keeping them apart is
+# what stops a candidate from scoring itself.
+run: python score.py
+
+metrics:
+  sum_radii: maximize
+
+budget:
+  trials: 20
+  usd: 2.0
+
+model:
+  gemini: {}
+
+sandbox:
+  seconds: 30
+  memory_mb: 512
+
+# verifier.tolerance is deliberately absent. Packing solutions are usually
+# stochastic, so the same program can score differently twice; declaring a
+# tolerance would switch on the verdict cache and freeze whichever score a
+# candidate happened to get first.
