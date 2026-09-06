@@ -104,17 +104,62 @@ definition one that stopped without saying so.
 
 ---
 
-## 2026-09-06 -- `cadence run examples/lab` fails out of the box
+## 2026-09-06 -- `cadence check` says "ready" for a project that cannot run
 
-    TerminalModelError: the scripted backend ran out of responses
+`cadence check examples/lab` prints, in the same block:
 
-The lab example's manifest leaves `model` at the default, `scripted`, whose
-canned answers are supplied by `demo.py`. Run through the CLI instead, it
-exhausts them on the first call and the run fails with 0 trials.
+    model       scripted, which has no answers in it.
+                `cadence run` needs a provider named in .cadence
+    ...
+    ready. `cadence run` will spend up to 2 trials.
 
-**Severity: low as a bug, high as a first impression.** It is the smaller of
-the two examples, so it is what someone tries first.
+Exit code 0. Then `cadence run examples/lab` fails on the first model call
+with `TerminalModelError: the scripted backend ran out of responses`, 0
+trials, exit 1.
 
-**Fix shape:** either give the manifest enough scripted responses to complete
-its 2 trials, or say in the example's README that it is driven by `demo.py`
-and not by `cadence run`.
+Check knew. It printed the sentence. It still said ready.
+
+The cause is in `control/preflight.py:141`: the scripted-model `Finding` is
+built without `ok=False`, so it lands among the notes rather than the
+refusals, and `_refuse_a_project_check_would_refuse` in `commands/run.py`
+never sees it.
+
+**Severity: high.** `run.py` documents the intent explicitly -- "the same
+checks, from both doors" -- and this is a door that opens onto a wall. The
+whole value of a free preflight is that passing it means the expensive thing
+will start.
+
+**Fix shape:** `ok=False` on that finding. One keyword.
+
+Separately, this means `examples/lab` is not a CLI project at all.
+`demo.py` builds `Scripted(...)` in Python with a hardcoded response and
+hands it to `build()`; there is no manifest key that supplies canned answers.
+The example's README should say it is run with `python demo.py`, not
+`cadence run`.
+
+---
+
+## 2026-09-06 -- `--json` and `--no-json` are not the same flag everywhere
+
+`cadence check examples/lab --no-json` fails with "No such option: --no-json
+(Possible options: --json)". `run` and `runs list` both accept the pair.
+
+**Severity: low.** But it is the kind of thing that makes a CLI feel
+untrustworthy -- you stop believing a flag works until you have tried it.
+
+**Fix shape:** the same `--json/--no-json` pair on every command, and the
+same non-TTY default `wanted_json()` already implements.
+
+---
+
+## What went well, for balance
+
+The friction log would be dishonest if it only recorded failures.
+
+`cadence check` output is the best thing in the product. Eleven lines that
+name the region and its line numbers, the method and its parameters, the
+resolved objective, whether the baseline actually ran and what it scored,
+whether the score repeated, and an estimate of what the run will cost. It
+answers "what is about to happen" better than anything else in the CLI.
+
+Which is exactly why the "ready" bug above matters so much.
