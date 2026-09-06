@@ -26,19 +26,12 @@ blocking.
 
 ## Known bad
 
-**`scorer-inside-markers`** — not detected at all. The line that prints the
-score sits inside the editable region, so the model can rewrite what it is
-judged by, and check calls the project fine. This is the one rule every
-problem in `problems/` follows, and cadence cannot check it.
+None. All nine assert a real message.
 
-**`bad-yaml`** — a raw PyYAML error: `in "<unicode string>", line 4`. It
-never names `.cadence`, so the user cannot tell which file is malformed.
-`load()` already has the path in hand.
+Three were fixed the day they were found — `scorer-inside-markers`,
+`wrong-metric-name`, and a fourth that was never broken:
 
-**`wrong-metric-name`** — the program printed `score`, the manifest asked for
-`value`, and the error only says `value` was never reported. Naming both
-would end the guessing.
-
-## Adding one
-
-A directory, a broken project, an `expect` file. No registration.
+**`bad-yaml` was a bad entry, not a bad error.** The message does name the
+file, on its first line. The original note was written from `tail -6` output
+and was wrong. A wrong entry in this list costs a wasted investigation, so
+check the whole message before adding one.

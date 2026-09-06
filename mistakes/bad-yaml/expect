@@ -1,3 +1,2 @@
-known-bad: raw PyYAML error. Says `in "<unicode string>", line 4` and never
-known-bad: names .cadence, so the user cannot tell which file is malformed.
+.cadence is not valid YAML
 expected ',' or '}'

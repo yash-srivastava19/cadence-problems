@@ -1,3 +1,2 @@
-known-bad: not detected at all. The scoring line is inside the region, so the
-known-bad: model can rewrite what it is judged by. check reports the project
-known-bad: as fine. Nothing here asserts an error because there is none.
+the region prints value, so the model can rewrite the line it is judged by
+Move the printing out of the region

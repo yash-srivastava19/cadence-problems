@@ -85,3 +85,23 @@ awkward.
 If a manifest could name scripted responses, the examples would be runnable,
 CI could exercise the whole loop, and `scripted` would stop needing to be a
 special case. Worth deciding before this repo grows more problems.
+
+
+## Follow-up: what the mistakes suite bought
+
+Nine broken projects, nine assertions, no API key and no database. Two real
+findings and one correction, same day:
+
+- **`scorer-inside-markers` was undetected.** A single file with the score
+  printed inside the region meant the model could rewrite the line it was
+  judged by, and check called the project fine. Now warned, with the fix.
+  Advice rather than a refusal: it is text matching, it misses
+  `print(f"{name}: {v}")`, and a false positive must not block a good project.
+- **`wrong-metric-name` did not say what it saw.** "never reported value" for
+  a program that printed `score`. Now: "It printed score."
+- **`bad-yaml` was my mistake, not cadence's.** The message names the file on
+  its first line; the note was written from truncated output.
+
+Also landed alongside: `cadence init`, which makes six of these nine
+impossible by construction, and a `recording` line in check, because a run
+without `DATABASE_URL` recorded nothing and said nothing about it.

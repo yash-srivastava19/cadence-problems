@@ -1,3 +1,2 @@
-known-bad: says the metric was never reported without mentioning that the
-known-bad: program printed `score`. Naming both would end the guessing.
 the program never reported value
+It printed score.
