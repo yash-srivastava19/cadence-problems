@@ -55,3 +55,27 @@ from outside cadence.
 **Severity: medium.** Worked around by writing the control arms as plain
 scripts in `baselines/`, which is arguably a better control anyway -- an
 independent implementation, not cadence grading its own homework.
+
+---
+
+## 2026-09-06 -- a dead database prints a traceback panel, not a sentence
+
+Ran `cadence runs list` while the Postgres container happened to be down.
+Output was a Rich traceback panel showing cadence's own source lines, and
+only then the useful part:
+
+    StorageError: connection failed: connection to server at "127.0.0.1",
+    port 5433 failed: Connection refused
+
+`translating()` worked -- it is a StorageError, not a raw psycopg traceback.
+But nothing catches it at the command, so Typer's pretty-exception handler
+renders the panel. `run` catches `CadenceError` and calls `die()`
+(`commands/run.py:124`); the read commands do not.
+
+**Severity: medium, and embarrassing.** A typo'd DSN shows a user the
+internals of a tool they just installed.
+
+**Fix shape:** `pretty_exceptions_enable=False` on the Typer app, and the
+same `except CadenceError: die(...)` the run path already has. The message
+should also name the likely cause -- "is the database running?" -- since a
+refused connection almost always means the container is down.
