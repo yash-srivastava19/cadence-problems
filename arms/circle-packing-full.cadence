@@ -1,0 +1,35 @@
+# A run meant to finish.
+#
+# Both earlier attempts died the same way: the model call hit gemini's 120s
+# provider default and Reliable ran out of attempts, which ends the whole run
+# rather than the trial. Raised here rather than in providers.yml because it
+# is a fact about this experiment, not about the provider.
+#
+# Six trials, not eight: the free tier allows ~20 requests a day and nine are
+# already spent, so this leaves room for retries. If it still runs out,
+# `cadence run --resume <run_id>` carries on without re-buying answers.
+api_version: cadence/v1alpha2
+program: pack.py
+experiment: circle-packing-26
+run: python score.py
+
+metrics:
+  sum_radii: maximize
+
+budget:
+  trials: 6
+  usd: 2.0
+
+model:
+  gemini:
+    # 300s is cadence's own default; gemini's row lowers it to 120.
+    timeout: 300
+    attempts: 4
+    backoff: 2.0
+
+sandbox:
+  # Trial 3 of the last run was a candidate, not the model, running past 30s.
+  # The score is sum of radii, not speed, so a slow but valid packing should
+  # be allowed to finish. 120s x 3 seeds is the worst case per trial.
+  seconds: 120
+  memory_mb: 1024

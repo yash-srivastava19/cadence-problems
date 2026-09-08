@@ -1,0 +1,23 @@
+# Same program, smaller budget. The free Gemini tier allows 20 requests a
+# day and a trial costs at least one, so the 20 in .cadence does not fit on
+# this machine. Eight leaves headroom for retries.
+api_version: cadence/v1alpha2
+program: pack.py
+experiment: circle-packing-26
+run: python score.py
+
+metrics:
+  sum_radii: maximize
+
+budget:
+  trials: 8
+  usd: 2.0
+
+model:
+  gemini:
+    timeout: 300
+    attempts: 4
+
+sandbox:
+  seconds: 120
+  memory_mb: 512

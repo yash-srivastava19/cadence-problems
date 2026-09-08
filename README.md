@@ -26,20 +26,35 @@ published figures it is measured against.
 ## Layout
 
 ```
-problems/<name>/     one problem, one cadence project root
+problems/<name>/     one problem
   .cadence           the manifest
   <program>.py       the seed, with CADENCE:BEGIN / CADENCE:END markers
   score.py           the verifier — outside the markers, never edited
   IMPROVE.md         what the model is told
   README.md          provenance, published numbers, our numbers
+arms/                small-budget manifests, used with `cadence run --config`
 mistakes/            deliberately broken projects — is the error any good?
 demos/               dated session records — the audit log
 baselines/           control arms, for judging the search honestly
 COVERAGE.md          feature → problem
 ```
 
-Each problem is its own directory because that is what cadence takes:
-`cadence run problems/circle-packing` reads `.cadence` from there.
+Each problem is its own cadence project root, because that is what cadence
+takes: `cadence run problems/circle-packing` reads `.cadence` from there.
+`bin-packing` nests the project one level deeper, in `run/`, so that its
+held-out test data can sit outside the directory the sandbox copies.
+
+## The problems
+
+| Problem | Published source | What it covers |
+|---|---|---|
+| [`circle-packing`](problems/circle-packing) | AlphaEvolve, n=26 sum of radii | stochastic verifier, verdict cache **off** |
+| [`bin-packing`](problems/bin-packing) | FunSearch, Nature 625 Table 1 | deterministic verifier, verdict cache **on**, two metrics, custom objective, a held-out test set |
+
+Prefer a problem whose baselines are *code*. `bin-packing` reproduces all
+eight published baseline cells before a model call is spent, so a broken
+harness is caught for free. `circle-packing` cannot: its 2.16667 grid is our
+own invention and nobody has published it.
 
 ## The rule every problem follows
 

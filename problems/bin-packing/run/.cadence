@@ -1,0 +1,46 @@
+api_version: cadence/v1alpha2
+program: heuristic.py
+experiment: bin-packing-online
+
+# score.py is what runs; heuristic.py is what gets edited. Keeping them apart
+# is what stops a candidate from scoring itself.
+run: python score.py
+
+# Both are reported, only one is selected on. FunSearch evolved on instances
+# the size of binpack1 and picked the winner by binpack2-sized validation, so
+# that is what the objective below weights. Reporting train as well is how a
+# candidate that has learned these twenty instances rather than the problem
+# shows up: train falls, valid does not follow.
+metrics:
+  excess_train: minimize
+  excess_valid: minimize
+
+objective:
+  weighted_sum:
+    excess_valid: -1.0
+
+budget:
+  trials: 20
+  usd: 2.0
+
+model:
+  gemini:
+    timeout: 300
+    attempts: 4
+
+sandbox:
+  # Scoring the seed takes 0.2s. Sixty is not a guess about how long a good
+  # candidate needs; it is enough headroom that the limit can never be the
+  # thing that decides which candidate wins.
+  seconds: 60
+  memory_mb: 512
+  # One seed, because the verifier is deterministic. Three would be three
+  # identical runs.
+  seeds: [0]
+
+verifier:
+  # Declared, which switches on the verdict cache: the same heuristic measured
+  # in a later run is not paid for twice. Safe here in a way it is not for
+  # circle packing, because a bin count is an integer and score.py refuses any
+  # candidate that scores the train set differently twice.
+  tolerance: 1e-9

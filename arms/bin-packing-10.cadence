@@ -1,0 +1,37 @@
+# Same problem, a budget the free Gemini tier can pay for. Twenty requests a
+# day, a trial costs at least one, and yesterday's run showed retries cost
+# about another 40% on top that cadence does not count. Ten leaves headroom.
+#
+# Everything else is copied from problems/bin-packing/run/.cadence verbatim.
+# --config replaces the manifest rather than overlaying it, so a field left
+# out here is a field silently reverted to its default -- which for
+# verifier.tolerance would quietly switch the verdict cache back off.
+api_version: cadence/v1alpha2
+program: heuristic.py
+experiment: bin-packing-online
+run: python score.py
+
+metrics:
+  excess_train: minimize
+  excess_valid: minimize
+
+objective:
+  weighted_sum:
+    excess_valid: -1.0
+
+budget:
+  trials: 10
+  usd: 2.0
+
+model:
+  gemini:
+    timeout: 300
+    attempts: 4
+
+sandbox:
+  seconds: 60
+  memory_mb: 512
+  seeds: [0]
+
+verifier:
+  tolerance: 1e-9

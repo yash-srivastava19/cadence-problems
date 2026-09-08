@@ -14,10 +14,18 @@ budget:
   usd: 2.0
 
 model:
-  gemini: {}
+  gemini:
+    # providers.yml gives gemini a 120s row, below cadence's own 300 default.
+    # Two of the four calls on 2026-09-07 took 194s and 248s.
+    timeout: 300
+    attempts: 4
 
 sandbox:
-  seconds: 30
+  # Not 30. The two candidates that beat the baseline on 2026-09-07 took 41.9s
+  # and 59.4s to score; a 30s limit killed both and the run read as "the search
+  # is weak". A sandbox limit that any winner can hit is not a safety rail, it
+  # is a hidden term in the objective.
+  seconds: 120
   memory_mb: 512
 
 # verifier.tolerance is deliberately absent. Packing solutions are usually
