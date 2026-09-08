@@ -69,9 +69,47 @@ cadence does by default when a manifest names two — trial 9 would have been in
 contention on the strength of twenty instances it had been tuned against.
 Overfitting was not hypothetical here; it showed up in a ten-trial run.
 
-**Trials 1 and 3 are the same wrong idea, twice.** Different fingerprints,
-identical metrics to six decimals. So are 5, 6 and 8. The search rediscovers
-its own dead ends, and nothing in the loop notices.
+**Trials 1 and 3 are the same wrong idea, twice.** So are 5, 6 and 8. Read
+the programs, not just the metrics -- see below.
+
+## What the winner is, and what it is not
+
+The winning `priority` has four regimes: an exact fit scores 100,000; slack of
+1-5 scores positive and falling; slack of 6-19 is penalised at -15 per unit;
+slack of 20 or more is positive again, tiered by `rem // 20` with a bonus for
+headroom within the tier.
+
+The 6-19 penalty is the whole mechanism. Items are at least 20, so a bin left
+with 19 units is finished, and best fit creates such bins constantly. On
+binpack4 the winner strands 32,247 units in dead-zone bins against best fit's
+53,760 -- 40% fewer -- and closes 1,748 bins exactly against 1,350. That is
+where the 138 bins came from.
+
+**That constraint was not discovered.** `IMPROVE.md` states it outright:
+"Item sizes are integers between 20 and 100. Bin capacity is 150. So a bin
+with less than 20 left can never take another item." The first draft of the
+report for this run called the dead zone the model's own inference. It is not,
+and the guidance file that was sent with every prompt says so. Corrected
+before publishing.
+
+What is the model's own is everything built on top: the four regimes, the
+tiering, the `+2.0 * (rem % 20)` headroom term, the size of the exact-fit
+spike. The useful reading is that a well-specified problem statement is worth
+a great deal -- which is more actionable than a discovery, because the problem
+statement is the part we control.
+
+## Three of ten calls bought an answer the run already had
+
+Trials 1 and 3 have identical metrics to six decimals and different hashes.
+Read side by side they are one function written twice: one scores a usable bin
+`1000 - rem` and the other `-rem`, the same ordering, and both rank every
+unusable bin below every usable one. Trials 5, 6 and 8 are three algebraic
+rewrites of another single function, sharing an exact-fit constant, a
+`50.0 - rem * 6.0` band and a `- 0.05 * left` tiebreak, differing only in how
+one branch is spelled.
+
+Content addressing cannot catch this. It keys on the text, and the text is
+different every time.
 
 ## The verdict cache, and what it did not do
 
@@ -85,11 +123,10 @@ The path is live. Eleven verdict rows written, all with the same
 the project as it stands today reproduces those exact values — so every one of
 them is reusable by a future run without spending the measurement again.
 
-It got **zero hits inside this run**. Trials 5, 6 and 8 scored identically to
-six decimals and are three distinct rows, because content addressing keys on
-the text and those were three different spellings of one idea. Worth stating
-plainly: the cache saves a re-measurement, not a re-derivation. A cross-run
-hit is still unobserved and is the next thing to check.
+It got **zero hits inside this run**, including on the six trials above that
+are two functions written six ways. The cache saves a re-measurement, not a
+re-derivation, and this run needed the second thing. A cross-run hit is still
+unobserved and is the next thing to check.
 
 `score.py` measures the training set twice and refuses any candidate whose two
 scores differ, so the determinism the tolerance asserts is enforced rather
