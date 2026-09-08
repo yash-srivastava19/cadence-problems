@@ -45,6 +45,28 @@ a wrong harness look right.
 Circle packing's baseline was a 6x6 grid we invented ourselves. Nobody has
 published it, so it could not check anything.
 
+## Our numbers
+
+Run `20260908-030111-f02ae0`, 10 trials, gemini-3.6-flash, 2026-09-08.
+
+| | binpack1 | binpack2 | binpack3 | binpack4 |
+|---|---|---|---|---|
+| First Fit | 6.42 | 6.45 | 5.74 | 5.23 |
+| Best Fit (the seed) | 5.81 | 6.06 | 5.37 | 4.94 |
+| **cadence, 10 trials** | **5.61** | **5.22** | **3.80** | **3.22** |
+| FunSearch | 5.30 | 4.19 | 3.11 | 2.47 |
+
+Better than best fit on all four, closing 40 / 45 / 69 / 70 percent of the
+distance to FunSearch, and closing more of it on the larger instances — the
+same direction FunSearch reported. The winner is in `winners/`, and none of
+these four sets was visible to the run.
+
+Selection was on validation only. Trial 9 scored the best training number of
+the run (5.930 against the baseline's 6.646) and a worse validation number
+than the winner: with cadence's default objective, which sums every declared
+metric, it would have been in contention on the strength of twenty instances
+it had been tuned against. See `demos/2026-09-08-bin-packing.md`.
+
 ## Layout
 
     heldout/binpack1..4.txt   OR-Library. Never copied into the sandbox.

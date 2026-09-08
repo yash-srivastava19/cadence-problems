@@ -24,7 +24,7 @@ README and keep it anyway, but do not pretend it is testing anything.
 | `sandbox` timeout hit | — | **gap** |
 | `sandbox` memory cap hit | — | **gap** |
 | multi-seed variance (`sandbox.seeds`) | circle-packing | partial |
-| `--resume` after a killed run | — | **gap** |
+| `--resume` after a killed run | bin-packing, 2026-09-08 (a real 503) | covered |
 | `--config` manifest override | `arms/` | covered |
 | error text on a malformed project | mistakes/ (9 cases) | covered |
 | `cadence init` output passes `check` | tested in cadence | covered |
