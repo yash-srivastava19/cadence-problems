@@ -7,7 +7,46 @@ Olympiad-level mathematics*, ICLR 2022. Statements from
 [miniF2F-lean4](https://github.com/yangky11/miniF2F-lean4) `5746b7d6c478`,
 proofs stripped to `sorry`.
 
-## Results
+## Tiers
+
+miniF2F's naming sorts the problems by source, and the source sorts them by
+difficulty. Each tier is its own experiment, with its own tactic and its own
+statements, all measured on the valid split.
+
+| tier | theorems | seed | 9-way | source |
+|---|---|---|---|---|
+| `mathd-numbertheory` | 60 | 20 (33%) | **39 (65%)** | MATH dataset, high school |
+| `mathd-algebra` | 70 | 14 (20%) | 17 (24%) | MATH dataset, high school |
+| `handcrafted` | 34 | 4 (12%) | 4 | written for the benchmark |
+| `amc` | 45 | 3 (7%) | 3 | AMC 12 |
+| `aime` | 15 | 0 | 0 | AIME |
+| `imo` | 20 | 0 | 0 | IMO |
+
+Seed is the miniF2F paper's `tidy` tactic list (`norm_num`, `ring_nf`,
+`linarith`, `nlinarith`). The 9-way column adds `positivity`, `omega`,
+`decide`, `simp_all` and `aesop` — one line, no search.
+
+**Start with `mathd-numbertheory`.** The seed closes a third of it and a
+one-line combinator closes two thirds, almost all of that from `omega` and
+`decide`, which are decision procedures the 2021 tidy list predates. Wide
+gradient, a cheap reference point to beat, and an obvious direction that is
+nonetheless not obviously optimal.
+
+`mathd-algebra` moves 14 → 17: a real gradient, a narrower one.
+
+`amc` and `handcrafted` do not move at all under the 9-way combinator. Their
+difficulty is not "needs more alternatives" but structural — closing them
+wants preprocessing or case analysis, not a longer `first`.
+
+**`aime` and `imo` score zero and a run on them would be waste.** Every
+plausible candidate scores 0, so every trial ties and the search has nothing
+to rank. They stay as the honest ceiling: one tactic does not prove olympiad
+problems, and any claim otherwise can be measured here first.
+
+A tier earns a run when the seed closes some but not most. That is the whole
+reason for splitting them.
+
+## Reference points, on a 25-theorem slice of mathd-algebra
 
 | | closed |
 |---|---|
@@ -15,16 +54,15 @@ proofs stripped to `sorry`.
 | `aesop`, `simp_all` alone | 1/25 |
 | `norm_num`, `omega` alone | 2/25 |
 | `linarith`, `nlinarith` alone | 6/25 |
-| **seed** — the tidy baseline's list (`norm_num`, `ring_nf`, `linarith`, `nlinarith`) | **7/25** |
-| a 9-way modern combinator, adding `positivity`, `omega`, `decide`, `simp_all`, `aesop` | 9/25 |
+| **seed** | **7/25** |
+| 9-way combinator | 9/25 |
 | cadence | not yet run |
 
 Held-out numbers come from `evaluate.py` on the full 244+244 splits. Published
 context: the paper's `tidy` baseline closes **16.8%** of valid and **18.0%** of
-test — but that is a best-first search over a curated tactic list, 128
-expansions deep, not a single tactic. It is quoted for scale, not as a
-like-for-like target. Its average successful proof is 1.8 tactic steps, which
-is why a one-shot combinator is in the same league at all.
+test — but that is a best-first search 128 expansions deep, not a single
+tactic. Quoted for scale, not as a like-for-like target. Its average successful
+proof is 1.8 tactic steps, which is why one shot is in the same league at all.
 
 ## Layout
 
