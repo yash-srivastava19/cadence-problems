@@ -1,0 +1,41 @@
+api_version: cadence/v1alpha2
+program: tactic.lean
+experiment: lean-proofs-minif2f
+
+# tactic.lean is edited; score.py is not. score.py holds the statements, the
+# compile and the counting, so a candidate cannot decide its own score.
+run: python score.py
+
+metrics:
+  closed: maximize
+
+budget:
+  trials: 20
+  usd: 2.0
+
+model:
+  gemini:
+    timeout: 300
+    attempts: 4
+
+sandbox:
+  # A compile is about 11s of Mathlib import plus proof search. 300 is not a
+  # guess at what a good tactic needs; it is enough headroom that the limit
+  # can never be the thing that decides which candidate wins.
+  seconds: 300
+  # Address space, not resident memory: lean mmaps thousands of .olean files,
+  # so `import Mathlib` needs more than 16GB of it. Measured -- at 8192 lean
+  # reports "failed to read file .../Mathlib/RingTheory/...", at 16384
+  # "failed to create thread", and neither message mentions memory. 32768 is
+  # the first value that scores.
+  memory_mb: 32768
+  # One seed: `lean` on a fixed file is deterministic.
+  seeds: [0]
+
+verifier:
+  # Safe only because environment.txt pins the Lean toolchain and the Mathlib
+  # revision inside the workspace, where workspace_digest hashes it. Mathlib
+  # itself lives outside the project -- it is 7.5GB and the sandbox copies the
+  # project every trial -- so without that stamp a Mathlib bump would silently
+  # reuse verdicts measured against a different library.
+  tolerance: 0

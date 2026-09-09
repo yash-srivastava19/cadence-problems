@@ -1,44 +1,50 @@
 # Circle packing, n = 26
 
-Place 26 circles in the unit square so the sum of their radii is as large as
-possible. Circles may differ in size. They may touch; they may not overlap or
-leave the square.
+Place 26 circles in the unit square, maximising the sum of their radii.
+Circles may differ in size and may touch, but not overlap or leave the square.
 
-Chosen as the first problem because it has the four properties a benchmark
-needs: the verifier is cheap (milliseconds), it is deterministic, the score
-is one number, and other people have published theirs.
+## Results
 
-## Numbers
+| Source | Sum of radii |
+|---|---|
+| Grid baseline (`pack.py` as shipped) | 2.166667 |
+| Previous best known | 2.634 |
+| AlphaEvolve | 2.63586276 |
+| ShinkaEvolve | 2.635983283 |
+| cadence, run `20260907-025816-571b77`, 4 trials | **2.604552** |
 
-| Source | Sum of radii | Notes |
-|---|---|---|
-| Grid baseline (`pack.py` as shipped) | 2.166667 | 26 equal circles, 6x6 grid |
-| Previous best known | 2.634 | what AlphaEvolve improved on |
-| AlphaEvolve | 2.63586276 | verified 2026-09-08 |
-| ShinkaEvolve | 2.635983283 | later, verified 2026-09-08 |
-| cadence, run 20260907-025816-571b77 | 2.604552 | 4 trials, 98.8% of AlphaEvolve |
+Published figures verified 2026-09-08 against the AlphaEvolve whitepaper
+(arXiv 2506.13131); ShinkaEvolve's is still second-hand. None of these numbers
+appear in `IMPROVE.md` — telling the model the target anchors it on the number
+instead of the problem.
 
-Verified on 2026-09-08 against the AlphaEvolve whitepaper (arXiv 2506.13131)
-and its write-ups; the table previously carried these from memory and said so.
-The one figure still worth checking at source is ShinkaEvolve's, which is
-reported second-hand.
+Note the weakness of this problem: the grid baseline is our own invention, so
+nothing here checks the harness. See `bin-packing` for the contrast.
 
-Deliberately kept out of `IMPROVE.md` (see below): none of these numbers reach
-the model.
+## Design
 
-Deliberately kept out of `IMPROVE.md`: the model reads that file, and telling
-it the number to beat anchors it on the number instead of the problem.
+`pack.py` is edited; `score.py` is not. Scoring in its own file is what stops
+a candidate returning one circle of radius 100 and printing a large number.
 
-## Why scoring is in its own file
+An overlapping packing scores 0 with a reason on stderr and does **not** raise.
+A crash increments `candidates.crashes` and eventually quarantines the
+candidate — the right response to broken code, the wrong one to a wrong answer.
 
-`pack.py` is edited by the model; `score.py` is not. If the two were one
-file, a candidate could return a single circle of radius 100, or overlapping
-circles, and print whatever it liked. Both are blocked, and there are tests
-for both.
+`verifier.tolerance` is deliberately absent. Packing solutions are stochastic,
+so declaring determinism would switch on the verdict cache and freeze whichever
+score a candidate happened to get first.
 
-## Invalid vs crashed
+## Sandbox limits are load-bearing
 
-An overlapping packing scores 0 and prints its reason to stderr. It does not
-raise. That distinction matters to cadence: a crash increments
-`candidates.crashes` and eventually quarantines the candidate, which is the
-right response to broken code and the wrong response to a wrong answer.
+`sandbox.seconds: 120`, not 30. The two candidates that beat the baseline took
+41.9s and 59.4s to score; a 30s limit killed both, and the run read as "the
+search is weak". A limit any winner can hit is a hidden term in the objective.
+
+Likewise `model.gemini.timeout: 300` — `providers.yml` gives gemini a 120s row,
+below cadence's own default, and two of four calls took 194s and 248s.
+
+## Running
+
+```sh
+cadence run . --config ../../arms/circle-packing-8.cadence
+```

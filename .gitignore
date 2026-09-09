@@ -5,3 +5,5 @@ __pycache__/
 results/
 FRICTION.md
 notes/
+Train.lean
+Evaluate.lean

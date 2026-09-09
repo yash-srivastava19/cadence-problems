@@ -10,6 +10,9 @@ README and keep it anyway, but do not pretend it is testing anything.
 
 | Area | Covered by | State |
 |---|---|---|
+| expensive verifier (seconds, not ms) | lean-proofs | covered |
+| non-Python program (`.lean`) | lean-proofs | covered |
+| `cadence_verifier_error` protocol | lean-proofs | covered |
 | `prompt.template: region` | circle-packing | covered |
 | `prompt.template: rewrite` | — | **gap** |
 | `prompt.template: improve` (diff) | — | **gap** |
@@ -22,7 +25,7 @@ README and keep it anyway, but do not pretend it is testing anything.
 | custom `objective` plugin | bin-packing (`weighted_sum` on valid only) | covered |
 | `budget.usd` exhaustion | — | **gap** |
 | `sandbox` timeout hit | — | **gap** |
-| `sandbox` memory cap hit | — | **gap** |
+| `sandbox` memory cap hit | lean-proofs (measured at 8/16/32GB) | covered |
 | multi-seed variance (`sandbox.seeds`) | circle-packing | partial |
 | `--resume` after a killed run | bin-packing, 2026-09-08 (a real 503) | covered |
 | `--config` manifest override | `arms/` | covered |
