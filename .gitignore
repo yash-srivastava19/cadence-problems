@@ -7,3 +7,4 @@ FRICTION.md
 notes/
 Train.lean
 Evaluate.lean
+Train-*.lean

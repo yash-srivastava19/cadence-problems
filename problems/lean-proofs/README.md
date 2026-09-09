@@ -33,11 +33,19 @@ theorems/valid.lean       244 statements. Never copied into the sandbox.
 theorems/test.lean        244 statements. Never copied into the sandbox.
 evaluate.py               The held-out test. Not part of any run.
 run/                      The cadence project — all a candidate can see.
-  tactic.lean             The program. The marked region is the tactic.
-  train.lean              25 statements, the first mathd_algebra of valid.
+  .cadence                Selects a tier; arms/lean-*.cadence select the rest.
+  tactics/<tier>.lean     The program per tier. What `cadence apply` writes.
+  train/<tier>.lean       The statements per tier.
   score.py                Splices, compiles once, counts what closed.
   environment.txt         The Lean and Mathlib the scores were measured on.
 ```
+
+A tier is chosen by the manifest, not by a separate project: `program` names
+the tactic it evolves and `run: python score.py <tier>` names the statements
+it is measured on. One `score.py` serves all six — six copies of a scorer
+carrying five guards would drift, and the copy that drifts is the one that
+lies. `task_hash` covers the run command, so verdicts cannot collide between
+tiers.
 
 ## Setup
 
@@ -106,6 +114,7 @@ nothing is attributable to a theorem, that is not a measurement** — report
 ## Running
 
 ```sh
-python evaluate.py                    # the current tactic, held-out
-cd run && cadence run
+python evaluate.py                       # the current tactic, held-out
+cd run && cadence run                    # mathd-algebra
+cd run && cadence run --config ../../../arms/lean-amc.cadence
 ```
