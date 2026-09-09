@@ -1,102 +1,51 @@
 # cadence-problems
 
-Staging for [cadence](https://github.com/yash-srivastava19/cadence). Every
-feature gets used here, on a real problem, before it counts as done.
-
-Not a demo folder. The question it answers is: **if we ship this cadence,
-does a real project still work?** Anything that only ever runs in cadence's
-own test suite has not been tested against the thing it is for.
-
-## Three jobs
-
-**1. Exercise the feature surface.** [`COVERAGE.md`](COVERAGE.md) maps every
-part of cadence to the problem that uses it. Gaps are visible on purpose.
-
-**2. Keep an audit log.** [`demos/`](demos/) holds one record per session:
-which cadence commit, what ran, what it answered, what it revealed. That log
-is how a product proposition gets built out of evidence rather than memory.
-
-**3. Anticipate mistakes.** [`mistakes/`](mistakes/) holds one broken
-project per way a user gets it wrong, each asserting what cadence says about
-it. A first hour is mostly errors, so the error text is the product.
-
-**4. Produce numbers.** Each problem's README carries its own results and the
-published figures it is measured against.
+Staging for [cadence](https://github.com/yash-srivastava19/cadence): real
+problems with published numbers, run end to end before a feature counts as
+done.
 
 ## Layout
 
 ```
-problems/<name>/     one problem
-  .cadence           the manifest
-  <program>.py       the seed, with CADENCE:BEGIN / CADENCE:END markers
-  score.py           the verifier — outside the markers, never edited
-  IMPROVE.md         what the model is told
-  README.md          provenance, published numbers, our numbers
-arms/                small-budget manifests, used with `cadence run --config`
-mistakes/            deliberately broken projects — is the error any good?
-demos/               dated session records — the audit log
-baselines/           control arms, for judging the search honestly
-COVERAGE.md          feature → problem
+problems/<name>/   one problem, one cadence project root
+arms/              small-budget manifests for `cadence run --config`
+baselines/         control arms — single-shot, random, hill-climb
+mistakes/          deliberately broken projects; asserts cadence's error text
+demos/             dated session records
+COVERAGE.md        cadence feature → the problem that exercises it
 ```
 
-Each problem is its own cadence project root, because that is what cadence
-takes: `cadence run problems/circle-packing` reads `.cadence` from there.
-`bin-packing` nests the project one level deeper, in `run/`, so that its
-held-out test data can sit outside the directory the sandbox copies.
+## Problems
 
-## The problems
+| Problem | Source | Baseline | Ours |
+|---|---|---|---|
+| [`circle-packing`](problems/circle-packing) | AlphaEvolve, n=26 | grid, 2.16667 | 2.60455 |
+| [`bin-packing`](problems/bin-packing) | FunSearch, Nature 625 T1 | best fit, 5.81/6.06/5.37/4.94 | 5.61/5.22/3.80/3.22 |
+| [`lean-proofs`](problems/lean-proofs) | miniF2F, ICLR 2022 | tidy tactic list, 7/25 | not yet run |
 
-| Problem | Published source | What it covers |
-|---|---|---|
-| [`circle-packing`](problems/circle-packing) | AlphaEvolve, n=26 sum of radii | stochastic verifier, verdict cache **off** |
-| [`bin-packing`](problems/bin-packing) | FunSearch, Nature 625 Table 1 | deterministic verifier, verdict cache **on**, two metrics, custom objective, a held-out test set |
+## Rules
 
-Prefer a problem whose baselines are *code*. `bin-packing` reproduces all
-eight published baseline cells before a model call is spent, so a broken
-harness is caught for free. `circle-packing` cannot: its 2.16667 grid is our
-own invention and nobody has published it.
-
-## The rule every problem follows
-
-**Scoring lives outside the edited region.** If the file the model rewrites
-can also decide its own score, the benchmark measures the model's
-imagination. `score.py` imports the program, checks the constraints, prints
-one metric line.
-
-Corollary: an invalid answer scores 0 with a reason. A crash is for broken
-code. Conflating them teaches the run the wrong lesson and eventually
-quarantines a candidate that was merely wrong.
-
-## What "better" means
-
-Comparing against a published number first is a trap: those runs used budgets
-we will not match, so a worse result says nothing about our search. The
-comparison that pays is against controls we run ourselves, at the same budget.
-
-| Arm | Answers |
-|---|---|
-| Single-shot: ask once, keep it | What does zero search buy? |
-| Random: ask N times, keep the best | Does selection help at all? |
-| Hill climb: always mutate the best | Is the tournament better than greedy? |
-| cadence | The number we actually have |
-| Published SOTA | Sanity check, much later |
-
-If cadence cannot beat "ask the model 20 times and keep the best", nothing
-downstream matters.
-
-## Friction
-
-Observations go in the session's `demos/` record, then to cadence's tracker.
-They are not kept as a document here — a friction list that lives beside the
-problems is a list nobody acts on.
+1. **Scoring lives outside the edited region.** A program that can score
+   itself measures the model's imagination.
+2. **An invalid answer scores at the floor with a reason; only broken code
+   crashes.** Conflating them quarantines candidates that were merely wrong.
+3. **Prefer baselines that are code.** `bin-packing` reproduces all eight
+   published baseline cells before a model call is spent, so a broken harness
+   is caught for free. `circle-packing` cannot — its grid baseline is our own
+   invention.
+4. **Published SOTA is context, not a target.** Those runs used budgets we do
+   not match. The comparison that pays is against controls at our own budget:
+   if cadence cannot beat "ask the model N times and keep the best", nothing
+   downstream matters.
 
 ## Running one
 
 ```sh
-export DATABASE_URL=...          # optional; without it nothing is recorded
 export GEMINI_API_KEY=...
+export DATABASE_URL=...        # optional; without it nothing is recorded
 cadence check problems/circle-packing
 cadence run   problems/circle-packing
 ```
 
-Record the session in `demos/` afterwards, including what went wrong.
+Write the session up in `demos/`, including what went wrong. Friction goes
+there and then to cadence's tracker, not into a document beside the problems.
