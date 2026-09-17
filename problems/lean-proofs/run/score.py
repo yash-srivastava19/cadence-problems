@@ -1,4 +1,12 @@
-"""How many of the training theorems the tactic closes.
+"""How many of a tier's theorems the tactic closes.
+
+    python score.py <tier>
+
+The tier names both the statements (train/<tier>.lean) and the tactic being
+measured (tactics/<tier>.lean), so a manifest picks a tier by its run command
+and its program, and one copy of this file serves all of them. Every tier is
+under a hundred theorems, which is Lean's error cap and the most diagnostics a
+compile here can produce -- see the cap guard below.
 
 The tactic in tactic.lean is spliced into every theorem in train.lean, the
 result is compiled once, and the score is the number of theorems that closed.
@@ -96,8 +104,18 @@ def check_environment() -> None:
         broke(f"environment.txt pins mathlib {rev[:12]}, {PROJECT} has {str(live)[:12]}")
 
 
-def tactic() -> str:
-    lines = (HERE / "tactic.lean").read_text().splitlines()
+def tier() -> str:
+    if len(sys.argv) != 2:
+        broke(f"usage: score.py <tier>; got {sys.argv[1:]}")
+    name = sys.argv[1]
+    for path in (HERE / "train" / f"{name}.lean", HERE / "tactics" / f"{name}.lean"):
+        if not path.exists():
+            broke(f"no {path.relative_to(HERE)} -- unknown tier {name!r}")
+    return name
+
+
+def tactic(name: str) -> str:
+    lines = (HERE / "tactics" / f"{name}.lean").read_text().splitlines()
     start = next(i for i, line in enumerate(lines) if BEGIN in line)
     stop = next(i for i, line in enumerate(lines) if END in line)
     body = [line for line in lines[start + 1 : stop] if line.strip()]
@@ -166,8 +184,9 @@ def measure(statements, script, path):
 def main() -> None:
     lake()
     check_environment()
-    statements = theorems(HERE / "train.lean")
-    closed = measure(statements, tactic(), HERE / "Train.lean")
+    name = tier()
+    statements = theorems(HERE / "train" / f"{name}.lean")
+    closed = measure(statements, tactic(name), HERE / f"Train-{name}.lean")
     for name in closed:
         print(f"-- closed {name}", file=sys.stderr)
     print(f"closed: {len(closed)}")

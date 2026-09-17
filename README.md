@@ -19,9 +19,10 @@ COVERAGE.md        cadence feature → the problem that exercises it
 
 | Problem | Source | Baseline | Ours |
 |---|---|---|---|
-| [`circle-packing`](problems/circle-packing) | AlphaEvolve, n=26 | grid, 2.16667 | 2.60455 |
-| [`bin-packing`](problems/bin-packing) | FunSearch, Nature 625 T1 | best fit, 5.81/6.06/5.37/4.94 | 5.61/5.22/3.80/3.22 |
+| [`circle-packing`](problems/circle-packing) | AlphaEvolve, n=26 | grid, 2.16667 | **2.63179** |
+| [`bin-packing`](problems/bin-packing) | FunSearch, Nature 625 T1 | best fit, 5.81/6.06/5.37/4.94 | 5.61/5.22/**3.80**/**3.22** (run 1); **5.20**/5.17/4.22/3.73 (run 2) |
 | [`lean-proofs`](problems/lean-proofs) | miniF2F, ICLR 2022 | tidy tactic list, 7/25 | not yet run |
+| [`job-shop`](problems/job-shop) | OR-Library, CP-SAT optima | MWKR, 17.29% over optimal | not yet run |
 
 ## Rules
 

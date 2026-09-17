@@ -3,7 +3,7 @@
 Items arrive one at a time, each is placed on arrival and never moved, and the
 goal is to use as few bins as possible. FunSearch's combinatorial benchmark.
 
-Source: Novikov et al., *Mathematical discoveries from program search with
+Source: Romera-Paredes et al., *Mathematical discoveries from program search with
 large language models*, Nature 625, 468–475 (2024), Table 1 and Appendix E.4.
 
 ## Results

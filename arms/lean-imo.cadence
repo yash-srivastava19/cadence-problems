@@ -1,6 +1,9 @@
+# miniF2F imo, 20 theorems from the valid split.
+# Ten trials rather than twenty: the free Gemini tier allows twenty
+# requests a day and retries cost about another 40% uncounted.
 api_version: cadence/v1alpha2
-program: tactics/mathd-algebra.lean
-experiment: lean-mathd-algebra
+program: tactics/imo.lean
+experiment: lean-imo
 
 # The tier is chosen here, by the program and the run command together: the
 # program is the tactic this tier evolves, the argument is the statements it
@@ -8,13 +11,13 @@ experiment: lean-mathd-algebra
 #
 # tactics/*.lean is edited; score.py is not. score.py holds the statements,
 # the compile and the counting, so a candidate cannot decide its own score.
-run: python score.py mathd-algebra
+run: python score.py imo
 
 metrics:
   closed: maximize
 
 budget:
-  trials: 20
+  trials: 10
   usd: 2.0
 
 model:
