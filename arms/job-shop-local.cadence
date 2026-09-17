@@ -1,0 +1,31 @@
+# job-shop on a local model. --config replaces the manifest, so every field is repeated here.
+api_version: cadence/v1alpha2
+program: rule.py
+experiment: job-shop-dispatch-local
+run: python score.py
+
+metrics:
+  excess_train: minimize
+  excess_valid: minimize
+
+objective:
+  weighted_sum:
+    excess_valid: -1.0
+
+budget:
+  trials: 20
+  usd: 2.0
+
+model:
+  ollama:
+    model: gemma3:4b
+    timeout: 900
+    attempts: 2
+
+sandbox:
+  seconds: 120
+  memory_mb: 512
+  seeds: [0]
+
+verifier:
+  tolerance: 1e-9
