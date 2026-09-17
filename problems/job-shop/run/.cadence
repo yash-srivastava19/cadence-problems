@@ -1,0 +1,29 @@
+api_version: cadence/v1alpha2
+program: rule.py
+experiment: job-shop-dispatch
+run: python score.py
+
+metrics:
+  excess_train: minimize
+  excess_valid: minimize
+
+objective:
+  weighted_sum:
+    excess_valid: -1.0
+
+budget:
+  trials: 20
+  usd: 2.0
+
+model:
+  gemini:
+    timeout: 300
+    attempts: 4
+
+sandbox:
+  seconds: 120
+  memory_mb: 512
+  seeds: [0]
+
+verifier:
+  tolerance: 1e-9
