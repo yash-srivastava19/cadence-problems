@@ -24,7 +24,7 @@ from packing import best_fit, excess, first_fit, load, pack  # noqa: E402
 
 SETS = ("binpack1", "binpack2", "binpack3", "binpack4")
 
-#: Table 1 of Novikov et al., "Mathematical discoveries from program search
+#: Table 1 of Romera-Paredes et al., "Mathematical discoveries from program search
 #: with large language models", Nature 625 (2024). Quoted, not recomputed.
 PUBLISHED = {
     "First Fit (published)": (6.42, 6.45, 5.74, 5.23),

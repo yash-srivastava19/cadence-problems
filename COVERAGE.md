@@ -20,10 +20,13 @@ README and keep it anyway, but do not pretend it is testing anything.
 | verdict cache on (`verifier.tolerance` set) | bin-packing | covered |
 | verdict cache off (stochastic verifier) | circle-packing | covered |
 | invalid answer scores 0, does not crash | circle-packing | covered |
-| genuine crash → quarantine after `crash_limit` | bin-packing (a bad `priority` raises) | available |
+| genuine crash → quarantine after `crash_limit` | bin-packing, 2026-09-16 (an `IndexError` in trial 8) | covered |
 | multi-metric manifest | bin-packing (train + valid) | covered |
 | custom `objective` plugin | bin-packing (`weighted_sum` on valid only) | covered |
 | `budget.usd` exhaustion | — | **gap** |
+| selection metric disagrees with the held-out metric | bin-packing, 2026-09-16 | **open problem, not a gap** |
+| the verifier computes its own reference, not a quoted one | job-shop (CP-SAT optima) | covered |
+| held-out split reports seen vs unseen shapes separately | job-shop | covered |
 | `sandbox` timeout hit | — | **gap** |
 | `sandbox` memory cap hit | lean-proofs (measured at 8/16/32GB) | covered |
 | multi-seed variance (`sandbox.seeds`) | circle-packing | partial |
