@@ -53,7 +53,6 @@ resume.
 
 ## Still open
 
-- No number yet. Gemini's run is `failed` on quota and resumable with the next
-  day's twenty; that is the one whose result belongs in the problems table.
-- Whether anything beats MWKR's 17.29% held-out is unanswered.
+- Answered on 2026-09-18: the resumed run reached 12.20% held out against
+  MWKR's 17.29%. See `2026-09-18-job-shop-result.md`.
 - `baselines/` is still empty.
