@@ -42,7 +42,7 @@ Lower is better. `python evaluate.py`, no key and no database required.
 |---|---|---|---|---|
 | SPT   shortest processing time | 21.49% | 23.21% | 19.94% | 23.36% |
 | LPT   longest processing time  | 34.41% | 34.51% | 32.91% | 36.24% |
-| FIFO  first in, first out      | 29.98% | 30.08% | 29.75% | 30.27% |
+| FIFO, as scored here ¹         | 29.98% | 30.08% | 29.75% | 30.27% |
 | **MWKR  most work remaining**  | **17.29%** | 17.74% | **12.95%** | 22.56% |
 | LWKR  least work remaining     | 34.99% | 36.10% | 34.83% | 35.20% |
 | MOPNR most operations remaining| 19.67% | 20.13% | 14.37% | 26.11% |
@@ -50,10 +50,57 @@ Lower is better. `python evaluate.py`, no key and no database required.
 MWKR is the seed, and is the best simple rule here, which is what the
 dispatching-rule literature reports.
 
+¹ **This is not FIFO.** Every operation in a contest has the same `ready_at`
+(verified over 6,836 contests and 13,464 operations), so a rule that scores
+`-ready_at` scores them all equally and falls through to the tie-break: lowest
+job index first. It is a fixed job-order rule. True FIFO needs `ready_at` to
+be the moment the operation became eligible -- its predecessor finishing --
+rather than the contest time. Measured that way, in a scratch copy that
+changes nothing else, FIFO scores **23.65%** pooled (19.30% `la`, 28.93%
+other), and MWKR and SPT come out byte-identical, which confirms only rules
+reading `ready_at` are affected. `shop.py` is left as it is while run
+`20260917-032417-42409b` can still be resumed; the fix belongs to the next
+lineage.
+
 Both columns are printed because they disagree and the literature usually
 quotes the mean. Pooled is the one that does not let a six-machine toy outvote
 a thirty-job shop -- the same correction that mattered on bin packing, where
 averaging gave 6.4111 and the paper said 6.42.
+
+## Result
+
+Run `20260917-032417-42409b`, gemini-3.6-flash, 16 trials across two days,
+stopped by the daily quota and resumable. Best at trial 11.
+
+| | pooled | mean | `la` (seen shape) | other families |
+|---|---|---|---|---|
+| MWKR, the seed | 17.29% | 17.74% | 12.95% | 22.56% |
+| **cadence** | **12.20%** | **13.02%** | **8.38%** | **16.84%** |
+
+Pooled excess over the proven optimum falls by 5.09 points, closing 29% of
+MWKR's gap. It improves on the families it never saw (-5.72) by as much as on
+the shape it was tuned on (-4.57) -- the opposite of bin-packing's second
+lineage, which gained on validation and lost held out.
+
+Verified out of band: `winners/20260917-032417-42409b.py`, copied into a
+directory it never ran in, rescores `excess_train 9.107723`,
+`excess_valid 10.690138`, matching the recorded verdict to six decimals.
+
+The rule is a weighted sum of ten terms with hand-set constants -- the
+parameter-tuning kind of edit that dominates evolutionary runs and that could
+plausibly be derived by hand. What argues against pure tuning is the
+unseen-family column. It adds what `IMPROVE.md` says MWKR lacks, a penalty
+for blocking a contested machine (`-0.4 * duration * (n - 1)`,
+`-0.0012 * duration * other_work`), so the problem statement pointed at the
+mechanism, as it did on bin packing.
+
+One of its ten terms is dead. `+ 0.8 * wait` reads `now - ready_at`, which is
+always zero under this simulator, so the rule in effect has nine. It used that
+term because `IMPROVE.md` said "`now - ready_at` is how long an operation has
+already waited", which is false here. On bin packing the problem statement
+handed over a real constraint; here it handed over a phantom one, and the
+model took it. That line is fixed in the next lineage, not this one, because
+editing `IMPROVE.md` changes the prompt digest and would refuse the resume.
 
 ## The split, and the trap it is built to catch
 
