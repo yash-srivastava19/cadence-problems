@@ -1,0 +1,24 @@
+api_version: cadence/v1alpha2
+program: scrabble/player.py
+run: python -m scrabble.score
+guidance: scrabble/IMPROVE.md
+experiment: scrabble-vs-greedy
+
+metrics:
+  win_rate: maximize
+  spread: maximize
+  forfeits: minimize
+
+objective:
+  weighted_sum: {win_rate: 1.0}
+
+budget:
+  trials: 5
+
+model:
+  ollama: {model: "qwen3-agent:latest"}
+
+sandbox:
+  seconds: 180
+  memory_mb: 1024
+  seeds: [0, 1]
