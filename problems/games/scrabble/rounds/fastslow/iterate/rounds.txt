@@ -1,0 +1,3 @@
+fast_2: score +1.00, leave +0.83, opens_T -3.45, opens_D -1.40, opens_t -1.19, tiles -1.42 | vs fast_0, 2000 games: 0.508 ±0.022, spread +2.0 ±4.2 | 971 lessons
+fast_3: score +1.00, leave +0.78, opens_T -3.80, opens_D -1.15, opens_t -0.79, tiles -1.35 | vs fast_0, 2000 games: 0.513 ±0.022, spread +2.4 ±4.2 | 958 lessons
+fast_4: score +1.00, leave +0.80, opens_T -3.53, opens_D -1.48, opens_t -0.69, tiles -1.71 | vs fast_0, 2000 games: 0.512 ±0.022, spread +2.3 ±4.2 | 971 lessons

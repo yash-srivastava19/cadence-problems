@@ -1,0 +1,21 @@
+round 1: slow(fast_1) plays fast_1, 100 games
+    20/100 games: slow 0.450, -0.5
+    40/100 games: slow 0.425, +5.1
+    60/100 games: slow 0.483, +13.5
+    80/100 games: slow 0.512, +14.0
+    100/100 games: slow 0.500, +9.3
+fast_2: score +1.00, leave +0.83, opens_T -3.45, opens_D -1.40, opens_t -1.19, tiles -1.42 | vs fast_0, 2000 games: 0.508 ±0.022, spread +2.0 ±4.2 | 971 lessons
+round 2: slow(fast_2) plays fast_2, 100 games
+    20/100 games: slow 0.600, +29.7
+    40/100 games: slow 0.575, +13.4
+    60/100 games: slow 0.583, +16.9
+    80/100 games: slow 0.588, +18.1
+    100/100 games: slow 0.610, +23.6
+fast_3: score +1.00, leave +0.78, opens_T -3.80, opens_D -1.15, opens_t -0.79, tiles -1.35 | vs fast_0, 2000 games: 0.513 ±0.022, spread +2.4 ±4.2 | 958 lessons
+round 3: slow(fast_3) plays fast_3, 100 games
+    20/100 games: slow 0.575, +24.4
+    40/100 games: slow 0.512, +7.1
+    60/100 games: slow 0.492, +6.0
+    80/100 games: slow 0.469, +5.6
+    100/100 games: slow 0.475, +6.6
+fast_4: score +1.00, leave +0.80, opens_T -3.53, opens_D -1.48, opens_t -0.69, tiles -1.71 | vs fast_0, 2000 games: 0.512 ±0.022, spread +2.3 ±4.2 | 971 lessons

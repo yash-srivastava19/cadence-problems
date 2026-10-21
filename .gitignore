@@ -8,3 +8,11 @@ notes/
 Train.lean
 Evaluate.lean
 Train-*.lean
+
+# Scrabble: kept out of git. NWL23.klv2 is Macondo's leave table (copy it in,
+# see problems/games/scrabble/site/README.md); en_50k.txt is fetched and
+# hash-checked by puzzles.py; positions.jsonl is 176 MB of training positions
+# that value.py regenerates.
+problems/games/scrabble/lexica/NWL23.klv2
+problems/games/scrabble/lexica/en_50k.txt
+problems/games/scrabble/rounds/value/positions.jsonl

@@ -1,0 +1,14 @@
+recording run 20261003-084914-a8e3e6
+  baseline   win_rate 0.5875 spread 16.73 forfeits 0 vs_greedy 0.675 vs_champion_1 0.5 ms_per_move 26.0535
+  trial 1
+    scored   win_rate 0.5875 spread 16.73 forfeits 0 vs_greedy 0.675 vs_champion_1 0.5 ms_per_move 26.9997
+  trial 2
+    crashed   File "/home/yashs/.local/share/mise/installs/python/3.14.7/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+kit.player.Crashed: NameError: name 'random' is not defined
+  trial 3
+    crashed   File "/home/yashs/.local/share/mise/installs/python/3.14.7/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+kit.player.Crashed: candidate exited with 1
+  finished after 3 trials
+  log        cadence-runs/development/20261003-084914-a8e3e6.jsonl

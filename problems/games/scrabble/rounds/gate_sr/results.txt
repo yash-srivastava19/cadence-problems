@@ -1,0 +1,3 @@
+e1_best    vs champion_1, 400 games: win_rate=0.507 spread=+4.1 forfeits=10 timeouts=10 ms_per_move=1333 minutes=20.8
+e1_trial4  vs champion_1, 400 games: win_rate=0.505 spread=+2.0 forfeits=0 timeouts=0 ms_per_move=693 minutes=11.8
+e2_best    vs champion_1, 400 games: win_rate=0.495 spread=+3.5 forfeits=13 timeouts=13 ms_per_move=832 minutes=13.9

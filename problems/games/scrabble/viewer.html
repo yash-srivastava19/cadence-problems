@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scrabble Ladder</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#EDF0EA;--surface:#F8F9F5;--ink:#18202A;--muted:#5A6470;--line:#D2D8CE;
+--accent:#2E6A4E;--accent-soft:#D3E5D9;--move:#B97A10;--move-soft:#F3E3C2;--bad:#B3402E;
+--b-bg:#1F5E46;--b-cell:#D9DCC8;--tw:#C8412F;--dw:#EBA3A0;--tl:#2F6FA8;--dl:#A9CDE6;--tile:#F4E2BA;--tile-ink:#2A1E0E;
+--display:"Bricolage Grotesque",system-ui,sans-serif;--body:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#10151A;--surface:#161C22;--ink:#E4E8E1;--muted:#98A2AC;--line:#2A323B;--accent:#6DBE8C;--accent-soft:#1D3528;--move:#E2AE4C;--move-soft:#3A2E16;--bad:#E3735F}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#10151A;--surface:#161C22;--ink:#E4E8E1;--muted:#98A2AC;--line:#2A323B;--accent:#6DBE8C;--accent-soft:#1D3528;--move:#E2AE4C;--move-soft:#3A2E16;--bad:#E3735F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:24px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font:700 clamp(28px,4vw,40px)/1.05 var(--display);margin:0}
+.sub{color:var(--muted);font-size:14px}
+.mono{font-family:var(--mono)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+th{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tbl{overflow-x:auto}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select,button,input[type=range]{font:500 13px var(--mono)}
+select,button{padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+button{cursor:pointer} button:focus-visible,select:focus-visible{outline:2px solid var(--move);outline-offset:2px}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--accent)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:1fr}}
+.boardwrap{background:var(--b-bg);border-radius:10px;padding:8px}
+.board{display:grid;grid-template-columns:repeat(15,1fr);gap:2px;aspect-ratio:1}
+.cell{background:var(--b-cell);border-radius:2px;position:relative;display:grid;place-items:center;font:600 7px var(--mono);color:rgba(0,0,0,.45)}
+.cell.T{background:var(--tw);color:#fff}.cell.D,.cell.s{background:var(--dw)}.cell.t{background:var(--tl);color:#fff}.cell.d{background:var(--dl)}
+.tile{position:absolute;inset:0;background:var(--tile);color:var(--tile-ink);border-radius:3px;display:grid;place-items:center;font:700 clamp(9px,1.5vw,15px) var(--mono);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.tile sub{position:absolute;right:2px;bottom:0;font-size:.5em;font-weight:500}
+.tile.blank{color:#7a5a1a;font-style:italic}
+.tile.new{outline:2px solid var(--move);outline-offset:-2px;animation:drop .35s ease-out both}
+@keyframes drop{from{transform:translateY(-10px) scale(1.2);opacity:0}to{transform:none;opacity:1}}
+.panel{display:flex;flex-direction:column;gap:12px}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sc{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--bg)}
+.sc.on{border-color:var(--move);box-shadow:inset 0 0 0 1px var(--move)}
+.sc .n{font:600 24px var(--mono)} .sc .who{font-size:12px;color:var(--muted)}
+.rack{display:flex;gap:4px;flex-wrap:wrap}
+.rt{width:30px;height:30px;background:var(--tile);color:var(--tile-ink);border-radius:4px;display:grid;place-items:center;font:700 14px var(--mono);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.rt.used{outline:2px solid var(--move);outline-offset:1px}
+.label{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.big{font:600 20px var(--mono)}
+.chosen td{background:var(--move-soft)} .best td{font-weight:600}
+.facts{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}
+.facts b{color:var(--ink);font-family:var(--mono)}
+.log{max-height:360px;overflow:auto;font:13px var(--mono);position:relative}
+.log div{display:grid;grid-template-columns:34px 130px 1fr 50px 80px;gap:6px;padding:3px 6px;border-radius:4px;cursor:pointer}
+.log div:hover{background:var(--accent-soft)} .log div.on{background:var(--move-soft)}
+.pill{display:inline-block;font:500 11px var(--mono);padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill.bad{background:#0000;color:var(--bad);border:1px solid var(--bad)}
+.note{font-size:12px;color:var(--muted)}
+</style></head><body><div class="wrap">
+<header><h1>Scrabble Ladder</h1><div class="sub" id="sub">No games loaded. Open a records.json written by bench.py.</div>
+<label class="controls" style="margin-top:8px"><span class="note">open records</span><input type="file" id="file" accept=".json,application/json"></label></header>
+<div id="app" hidden>
+<div class="card tbl"><table id="ladder"></table></div>
+<div class="card controls">
+  <select id="pick" aria-label="Game"></select>
+  <button id="first" aria-label="First turn">|&lt;</button><button id="prev" aria-label="Previous turn">&lt;</button>
+  <button id="play">play</button><button id="next" aria-label="Next turn">&gt;</button><button id="last" aria-label="Last turn">&gt;|</button>
+  <input type="range" id="slider" min="0" value="0" aria-label="Turn">
+  <span class="mono" id="pos"></span>
+</div>
+<div class="main">
+  <div class="boardwrap"><div class="board" id="board"></div></div>
+  <div class="panel">
+    <div class="scores" id="scores"></div>
+    <div class="card"><div class="label">this turn</div><div class="big" id="mv"></div><div class="facts" id="facts"></div></div>
+    <div class="card"><div class="label">rack before the move · tiles played are outlined</div><div class="rack" id="rack"></div></div>
+    <div class="card tbl"><div class="label">top moves by our equity (points + a simple leave value) · not an engine's opinion</div><table id="top"></table></div>
+  </div>
+</div>
+<div class="card"><div class="label">this position as CGP (full state, before the move)</div><div class="mono" id="cgp" style="font-size:12px;word-break:break-all;user-select:all"></div></div>
+<div class="card"><div class="label">every turn · click to jump</div><div class="log" id="log"></div></div>
+</div>
+<p class="note">Every number here was computed by the Python engine and stored in the records. This page only draws them.</p>
+</div>
+<script>
+const EMBEDDED=/*DATA*/null/*END*/;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const LBL={T:"3W",D:"2W",t:"3L",d:"2L","*":"★"};
+let DATA=null, N=0, cells=[], G=null, k=0, timer=null;
+
+function show(data){
+  DATA=data; stop();
+  const S=DATA.speed;
+  $("sub").textContent=`${DATA.ruleset} · ${S.games} games in ${S.wall_s}s on ${S.workers} workers · ${S.games_per_s} games/s · ${S.ms_per_movegen} ms per move generation · ${DATA.games.length} games loaded`;
+  $("ladder").innerHTML='<tr><th>matchup (duplicate: same bag, seats swapped)</th><th class="num">games</th><th class="num">win rate of first</th><th class="num">±95%</th><th class="num">avg spread</th></tr>'+
+    DATA.table.map(r=>`<tr><td>${esc(r.a)} vs ${esc(r.b)}</td><td class="num">${r.games}</td><td class="num">${r.win_rate.toFixed(3)}</td><td class="num">${r.ci95.toFixed(3)}</td><td class="num">${r.spread>0?"+":""}${r.spread}</td></tr>`).join("");
+  N=DATA.premiums.length; cells=[]; $("board").innerHTML="";
+  $("board").style.gridTemplateColumns=`repeat(${N},1fr)`;
+  DATA.premiums.forEach(row=>[...row].forEach(p=>{
+    const d=document.createElement("div"); d.className="cell "+(p==="*"?"s":p==="."?"":p); d.textContent=LBL[p]||"";
+    $("board").appendChild(d); cells.push(d);
+  }));
+  $("pick").innerHTML="";
+  DATA.games.forEach((g,i)=>{
+    const o=document.createElement("option"); o.value=i;
+    const w=g.final[0]>g.final[1]?g.players[0]:g.final[1]>g.final[0]?g.players[1]:"tie";
+    o.textContent=`seed ${g.seed} · ${g.players[0]} vs ${g.players[1]} · ${g.final[0]}–${g.final[1]} · ${w==="tie"?"tie":w+" wins"}`;
+    $("pick").appendChild(o);
+  });
+  $("app").hidden=false;
+  load(0);
+}
+function tile(t,b,isNew){const v=b?0:(DATA.values[t]??0);return `<div class="tile${b?" blank":""}${isNew?" new":""}">${b?t.toLowerCase():t}<sub>${v}</sub></div>`;}
+function keepVisible(){
+  const log=$("log"), row=log.children[k];
+  if(!row) return;
+  const top=row.offsetTop, bottom=top+row.offsetHeight;
+  if(top<log.scrollTop || bottom>log.scrollTop+log.clientHeight) log.scrollTop=top-log.clientHeight/2;
+}
+function draw(){
+  const F=G.frames, f=F[k];
+  cells.forEach(c=>c.querySelector(".tile")?.remove());
+  for(let i=0;i<=k;i++){ for(const [r,c,t,b] of F[i].move.tiles){ cells[r*N+c].insertAdjacentHTML("beforeend",tile(t,b,i===k)); } }
+  const before=k>0?F[k-1].scores:[0,0];
+  $("scores").innerHTML=[0,1].map(p=>`<div class="sc${f.player===p?" on":""}"><div class="who">player ${p} · ${esc(G.players[p])}</div><div class="n">${f.scores[p]}</div><div class="who">${f.scores[p]-before[p]>=0?"+":""}${f.scores[p]-before[p]} this turn</div></div>`).join("");
+  $("mv").innerHTML=`P${f.player} ${esc(G.players[f.player])}: ${esc(f.move.label)} <span style="color:var(--accent)">+${f.move.score}</span>`;
+  $("facts").innerHTML=`<span>legal plays <b>${f.plays}</b></span><span>bag <b>${f.bag}</b></span><span>unseen <b>${f.unseen}</b></span><span>move gen <b>${f.ms} ms</b></span><span>points left on table <b>${f.regret_points}</b></span><span>equity regret <b>${f.regret_equity}</b></span>`+
+    (f.adjust?`<span>end of game <b>P0 ${f.adjust[0]>=0?"+":""}${f.adjust[0]}, P1 ${f.adjust[1]>=0?"+":""}${f.adjust[1]}</b></span>`:"")+
+    (k===F.length-1?`<span><span class="pill">${esc(G.end)}</span></span>`:"");
+  const used=[...f.move.tiles.map(([r,c,t,b])=>b?"?":t),...f.move.returned];
+  $("rack").innerHTML=f.rack.map(t=>{const j=used.indexOf(t);if(j>=0)used.splice(j,1);return `<div class="rt${j>=0?" used":""}">${t}</div>`;}).join("");
+  $("top").innerHTML='<tr><th class="num">rank</th><th>move</th><th class="num">points</th><th class="num">equity</th><th></th></tr>'+
+    f.top.map(m=>`<tr class="${m.chosen?"chosen":""} ${m.rank===1?"best":""}"><td class="num">${m.rank}</td><td class="mono">${esc(m.label)}</td><td class="num">${m.score}</td><td class="num">${m.equity}</td><td>${m.chosen?'<span class="pill">played</span>':""}</td></tr>`).join("");
+  $("cgp").textContent=f.cgp||"(not in these records)";
+  $("slider").max=F.length-1; $("slider").value=k;
+  $("pos").textContent=`turn ${k+1} / ${F.length}`;
+  [...$("log").children].forEach((d,i)=>d.classList.toggle("on",i===k));
+  keepVisible();
+}
+function load(i){
+  G=DATA.games[i]; k=0;
+  $("log").innerHTML=G.frames.map((f,i)=>`<div data-i="${i}"><span>${i+1}</span><span>P${f.player} ${esc(G.players[f.player])}</span><span>${esc(f.move.label)}</span><span>+${f.move.score}</span><span>${f.scores[0]}–${f.scores[1]}</span></div>`).join("");
+  $("log").scrollTop=0;
+  draw();
+}
+function stop(){clearInterval(timer);timer=null;$("play").textContent="play";}
+$("log").addEventListener("click",e=>{const d=e.target.closest("[data-i]");if(d){k=+d.dataset.i;draw();}});
+$("pick").addEventListener("change",e=>{stop();load(+e.target.value);});
+$("first").onclick=()=>{k=0;draw();};
+$("last").onclick=()=>{k=G.frames.length-1;draw();};
+$("prev").onclick=()=>{k=Math.max(0,k-1);draw();};
+$("next").onclick=()=>{k=Math.min(G.frames.length-1,k+1);draw();};
+$("slider").oninput=e=>{k=+e.target.value;draw();};
+$("play").onclick=()=>{ if(timer){stop();return;} $("play").textContent="pause";
+  timer=setInterval(()=>{ if(k>=G.frames.length-1){stop();return;} k++; draw(); },1200); };
+document.addEventListener("keydown",e=>{ if(!G||["SELECT","INPUT"].includes(e.target.tagName))return;
+  if(e.key==="ArrowRight")$("next").click(); if(e.key==="ArrowLeft")$("prev").click(); });
+$("file").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  $("sub").textContent=`reading ${f.name}…`;
+  f.text().then(txt=>show(JSON.parse(txt))).catch(err=>{$("sub").textContent=`Could not read ${f.name}: ${err.message}. Pick a records.json written by bench.py.`;});
+});
+if(EMBEDDED) show(EMBEDDED);
+</script></body></html>

@@ -1,0 +1,12 @@
+# Round 2
+
+Run `20261003-033748-9bb3ee`: 2 trials, best scored {'forfeits': 0.0, 'ms_per_move': 559.9736, 'spread': 19.125, 'vs_champion_1': 0.535, 'vs_greedy': 0.705, 'win_rate': 0.62}.
+
+| | win rate | ±95% | spread |
+|---|---|---|---|
+| **gate**: candidate vs champion_1, 400 fresh games | 0.340 | 0.046 | -3.5 |
+| yardstick: candidate vs leave, 200 games | 0.492 | 0.069 | +10.3 |
+| yardstick: champion_1 vs leave, same games | 0.532 | 0.069 | +9.3 |
+
+**NOT PROMOTED**: the gate needs 55% with no forfeits. The code change is in change.diff.
+

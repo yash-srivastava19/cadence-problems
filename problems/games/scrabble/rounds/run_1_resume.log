@@ -1,0 +1,9 @@
+resuming run 20261002-071529-e3419a from trial 2 with 2 results already scored
+  trial 3
+    scored   win_rate 0.58 spread 12.49 forfeits 0 vs_greedy 0.67 vs_champion_1 0.49
+  trial 4
+    scored   win_rate 0.5225 spread 1.905 forfeits 0 vs_greedy 0.61 vs_champion_1 0.435
+  trial 5
+    scored   win_rate 0.5675 spread 10.705 forfeits 0 vs_greedy 0.65 vs_champion_1 0.485
+  finished after 5 trials
+  log        cadence-runs/development/20261002-071529-e3419a.jsonl

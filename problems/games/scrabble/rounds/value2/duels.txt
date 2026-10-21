@@ -1,0 +1,6 @@
+v1-spread vs steady @620000: win 0.517 ±0.022, spread +4.2 ±4.3 (2000 games)
+v1-win vs steady @620000: win 0.496 ±0.022, spread -3.8 ±4.3 (2000 games)
+v2-spread vs steady @620000: win 0.505 ±0.022, spread +1.3 ±4.3 (2000 games)
+v2-win vs steady @620000: win 0.480 ±0.022, spread -5.4 ±4.4 (2000 games)
+v1-spread vs steady @650000: win 0.533 ±0.022, spread +7.3 ±4.4 (2000 games)
+s2-v1-spread-64 vs steady @660000: win 0.532 ±0.031, spread +6.3 ±6.0 (1000 games)

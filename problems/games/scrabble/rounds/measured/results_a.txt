@@ -1,0 +1,4 @@
+evidence_a1    vs leave       win 0.505  spread   +3.8  forfeits 0  ms 6
+evidence_a1    vs champion_1  win 0.453  spread   -8.1  forfeits 0  ms 5
+evidence_a2    vs leave       win 0.532  spread   +7.1  forfeits 0  ms 5
+evidence_a2    vs champion_1  win 0.496  spread   -6.5  forfeits 0  ms 6

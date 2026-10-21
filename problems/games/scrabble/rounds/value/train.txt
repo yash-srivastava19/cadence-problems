@@ -1,0 +1,1 @@
+held-out mse: mean only 4007.9, linear 3910.1, net 3876.8 | 406159 positions, 45158 held out

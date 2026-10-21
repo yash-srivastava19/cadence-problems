@@ -1,0 +1,56 @@
+{
+ "name": "n2-confirm-n1-net",
+ "command": [
+  "uv",
+  "run",
+  "--with",
+  "numpy",
+  "--with",
+  "torch",
+  "--index",
+  "https://download.pytorch.org/whl/cpu",
+  "python",
+  "-m",
+  "scrabble.value",
+  "duel",
+  "--who",
+  "net",
+  "--against",
+  "steady",
+  "--first",
+  "650000",
+  "--bags",
+  "1000"
+ ],
+ "code_sha256": "0435387e749ab63f83585d91c9b31ab44c64278656eb2454b008cd7bbc9c374c",
+ "source": "cadence-problems@b52ae28-dirty+value2+search",
+ "models": {
+  "rounds/value/net.pt": "8bfe0147dfd8a20f0f0e004dad59ff3600d0a2ab7344323eb2f9be6df28238e0",
+  "rounds/value2/net_v1.pt": "0f32e0925325788034d0a6accbb84aff1fc4f6e6b4955438579d4e8c3b3ca590",
+  "rounds/value2/net_v2.pt": "3bac1ff8bc7278a34ba9f7b40e24e6ab686ee8205dafcdfd2c70b94ba8355c66",
+  "rounds/fastslow/weights.json": "8f4c0246b1f30cf0805b29ea9c5171cc1f97f1415061857a209b7d984c5f1615",
+  "rounds/value/linear.json": "6ba26799f2c0f2358f64f62537f001556b25bea78ca966c6c82a94b46118f3ad"
+ },
+ "machine": {
+  "host": "ip-172-31-36-123",
+  "cpus": 16,
+  "python": "3.12.3",
+  "instance": "c6a.4xlarge"
+ },
+ "start": "2026-10-17T11:11:30+0000",
+ "end": "2026-10-17T11:16:30+0000",
+ "exit": 0,
+ "outputs": {
+  "duel_linear_vs_fast_0.jsonl": "10c42e75eba1a76cb914df1986a6d1215188465c34670902af56778a88cbb91c",
+  "duel_linear_vs_steady.jsonl": "01b58846cc562ac90e67e63f886293c8dfd4bc67cb8bfdd5fd587c486caae5f6",
+  "duel_net_vs_fast_0.jsonl": "edde1f91851fa4d65e45f7a11266a5056537a12c31ae7a6dea572c43e673c624",
+  "duel_net_vs_steady.jsonl": "ec29633a40ffbe0020598dbc55d54d7eacf810b666a5ad45f84d5501e40e7992",
+  "duel_net_vs_steady_650000.jsonl": "60cd78c6826021a5af5fd15e769f73c3754b334f141db2e778eee4585c6fd6d8",
+  "duels.txt": "2ad0978e782e91e46a77c2c324a322e0e076d74bd296515803c73a326bf2a2b2",
+  "linear.json": "6ba26799f2c0f2358f64f62537f001556b25bea78ca966c6c82a94b46118f3ad",
+  "n1.done": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "net.pt": "8bfe0147dfd8a20f0f0e004dad59ff3600d0a2ab7344323eb2f9be6df28238e0",
+  "positions.jsonl": "dfa3dfd4ea1d8c71c5e6da20c1715a77c6ea27c8e5d123377842d9f6447be344",
+  "train.txt": "2c15027f08f13a5fd9b26a46609a808caa83466abbf9cef5d70efe95f278d14a"
+ }
+}

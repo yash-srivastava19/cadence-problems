@@ -1,0 +1,6 @@
+measured         vs champion_1  win 0.472  spread   -7.9  forfeits 0  ms 15
+measured         vs leave       win 0.504  spread   +1.1  forfeits 0  ms 16
+measured         vs greedy      win 0.598  spread  +24.3  forfeits 0  ms 17
+measured_vowels  vs champion_1  win 0.487  spread   -6.0  forfeits 0  ms 19
+measured_vowels  vs leave       win 0.520  spread   +3.0  forfeits 0  ms 17
+measured_vowels  vs greedy      win 0.595  spread  +23.6  forfeits 0  ms 16

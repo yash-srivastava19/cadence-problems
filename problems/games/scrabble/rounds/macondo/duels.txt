@@ -1,0 +1,13 @@
+steady vs hasty @670000: win 0.490 ±0.031, spread -3.4 ±6.2 (999 games)
+v1-spread vs hasty @670000: win 0.533 ±0.031, spread +5.4 ±6.1 (999 games)
+s2-v1-spread-64 vs hasty @670000: win 0.528 ±0.031, spread +6.3 ±6.3 (1000 games)
+v1-spread vs hasty @690000: win 0.493 ±0.022, spread -1.2 ±4.4 (2000 games)
+steady vs hasty @670000: win 0.491 ±0.031, spread -3.4 ±6.1 (1000 games)
+v1-spread vs hasty @670000: win 0.533 ±0.031, spread +5.4 ±6.1 (1000 games)
+s2-v1-spread-64 vs hasty @670000: win 0.528 ±0.031, spread +6.3 ±6.3 (1000 games)
+klv vs hasty @710000: win 0.533 ±0.044, spread +8.1 ±9.1 (500 games), 0.00 s a move, same move as HastyBot 85.5%
+s3e-klv-64 vs hasty @710000: win 0.502 ±0.044, spread -0.1 ±9.2 (500 games), 8.63 s a move
+klve vs hasty @710000: win 0.564 ±0.043, spread +15.0 ±9.1 (500 games), 0.43 s a move, endgame solves 964 (gave up 0, 2.7 s each)
+klve vs hasty @720000: win 0.547 ±0.031, spread +9.1 ±6.2 (1000 games), 0.42 s a move, endgame solves 1921 (gave up 0, 2.7 s each)
+klve vs sim @739000: win 0.500 ±0.693, spread -19.5 ±159.0 (2 games), 0.01 s a move, endgame solves 2 (gave up 0, 0.1 s each)
+klve vs sim @740000: win 0.420 ±0.031, spread -10.0 ±6.2 (1000 games), 0.40 s a move, endgame solves 1568 (gave up 0, 3.1 s each)

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rackoon</title>
+<meta name="description" content="One crossword board game position a day. Find the best play in three tries.">
+<meta name="theme-color" content="#F5F1E8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1814" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script src="config.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the puzzle</a>
+
+<header class="top">
+  <a class="mark" id="site-name" href="#/today" hidden></a>
+  <nav class="tools" aria-label="Site">
+    <a class="icon" href="#/today" aria-label="Today's puzzle" title="Today's puzzle">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></a>
+    <a class="icon" href="#/practice" aria-label="Random puzzle" title="Random puzzle">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle cx="9" cy="9" r="1.1" class="dot"/><circle cx="15" cy="15" r="1.1" class="dot"/><circle cx="15" cy="9" r="1.1" class="dot"/><circle cx="9" cy="15" r="1.1" class="dot"/></svg></a>
+    <a class="icon" href="#/archive" aria-label="Archive" title="Archive">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></a>
+    <button class="icon" type="button" id="open-stats" aria-label="Statistics" title="Statistics">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-5"/></svg></button>
+    <a class="icon" href="#/how" aria-label="How to play" title="How to play">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.5"/><circle cx="12" cy="16.8" r=".6" class="dot"/></svg></a>
+    <button class="icon" type="button" id="theme" aria-label="Switch to dark mode" title="Light or dark">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" class="fill"/></svg></button>
+  </nav>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- Today's puzzle, or one from the archive -->
+  <section id="view-puzzle" class="view" aria-labelledby="pz-title">
+    <div class="pz-head">
+      <p class="pz-date" id="pz-date"></p>
+      <h1 id="pz-title" class="pz-title">Find the best play</h1>
+      <p class="pz-sub" id="pz-sub">Points now, plus what the tiles you keep are worth.</p>
+    </div>
+
+    <div class="layout">
+      <div class="col-board">
+        <dl class="scoreline" id="scoreline"></dl>
+        <div class="board-wrap">
+          <div id="board" class="board" role="grid" tabindex="0" aria-label="Board, 15 by 15. Arrow keys move, space turns between across and down, letters place tiles."></div>
+        </div>
+        <p class="legend"><span><i class="sw last" aria-hidden="true"></i>Their last play</span></p>
+      </div>
+
+      <div class="col-side">
+        <div id="play-area">
+          <p class="status" id="status" role="status" aria-live="polite"></p>
+          <div class="rack" id="rack" role="group" aria-label="Your rack"></div>
+          <div class="controls">
+            <button type="button" class="btn text" id="shuffle" aria-label="Shuffle rack">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3.5c4 0 5 10 9 10H20M4 17h3.5c1.5 0 2.5-1.4 3.4-3M20 7h-3.5c-1.5 0-2.5 1.4-3.4 3M17.5 4.5 20 7l-2.5 2.5M17.5 14.5 20 17l-2.5 2.5"/></svg><span>Shuffle</span></button>
+            <button type="button" class="btn text" id="clear" aria-label="Take back all tiles">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 4 12l5 5M4.5 12H15a5 5 0 0 1 0 10h-2" transform="translate(0 -3)"/></svg><span>Clear</span></button>
+            <button type="button" class="btn primary" id="submit">Play<span class="pts" id="preview-pts"></span></button>
+          </div>
+        </div>
+
+        <ol class="tries" id="tries" aria-label="Your tries"></ol>
+        <section class="result" id="result" hidden aria-labelledby="result-title" tabindex="-1">
+          <h2 id="result-title" class="result-title"></h2>
+          <p class="explain" id="explain"></p>
+          <p class="tip" id="tip"></p>
+          <div class="topplays">
+            <div class="top-head">
+              <h3>Top plays</h3>
+              <button type="button" class="term" id="term-btn" aria-expanded="false" aria-controls="term-pop">What's “kept”?</button>
+            </div>
+            <div class="term-pop" id="term-pop" hidden>
+              The tiles left on your rack after a play are what you <strong>keep</strong> (players call this your <em>leave</em>). Some help next turn, like a blank, an S, or a mix of vowels and consonants. Some get in the way, like doubled letters or a Q with no U. Their worth comes from a table learned from hundreds of millions of self-play games. <strong>Value</strong> = points + worth of kept tiles.
+            </div>
+            <table class="plays" id="plays">
+              <thead><tr><th scope="col" class="rk"><span class="sr">Rank</span></th><th scope="col">Play</th><th scope="col" class="n">Pts</th><th scope="col">Kept</th><th scope="col" class="n">Value</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <p class="hint">Tap a play to see it on the board.</p>
+          </div>
+          <div class="share-row">
+            <button type="button" class="btn primary" id="share">Copy result</button>
+            <a class="btn text accent" id="random-2" href="#/practice">Play a random one</a>
+          </div>
+          <p class="next" id="next"></p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-archive" class="view page" hidden aria-labelledby="ar-title">
+    <h1 id="ar-title">Archive</h1>
+    <p class="lede">Every day so far. Playing these doesn't change your streak.</p>
+    <ol class="archive" id="archive"></ol>
+  </section>
+
+  <section id="view-how" class="view page" hidden aria-labelledby="how-title">
+    <h1 id="how-title">How to play</h1>
+    <p class="lede">Each day you get one position from a real game of the crossword board game, the one with letter tiles and a 15 by 15 board. It's your turn. Find the best play.</p>
+
+    <h2>The game, briefly</h2>
+    <ul class="rules">
+      <li>You hold seven letter tiles, your <em>rack</em>. A play puts one or more of them in a single row or column, joined to the tiles already on the board.</li>
+      <li>Every word your play makes, across and down, must be in the word list. This site uses ENABLE, a free English word list.</li>
+      <li>Each tile has points in its corner. Coloured squares multiply a letter (2× or 3× letter) or the whole word (2× or 3× word). A blank tile can be any letter and scores 0.</li>
+      <li>Use all seven tiles in one play and you get 50 extra points.</li>
+      <li>After a play you draw new tiles from the bag, so what you keep matters.</li>
+    </ul>
+
+    <h2>What “best play” means here</h2>
+    <p>Not simply the most points. The best play has the most <strong>value</strong>: the points it scores now plus what the tiles you keep are worth for your next turn. Keeping an S or a blank is worth a lot. Keeping UUV is a burden. The worth of every set of kept tiles comes from a table learned from hundreds of millions of self-play games.</p>
+
+    <h2>Playing</h2>
+    <ul class="rules">
+      <li>Tap a square to start there. Tap it again to switch between across and down.</li>
+      <li>Tap your tiles, or type, to place them. Backspace takes back the last tile. Tap a placed tile to return it.</li>
+      <li>Placing a blank asks which letter it stands for. Typing a letter you don't have uses your blank.</li>
+      <li>You have three tries. After each one you see its points and its value as a share of the best play's.</li>
+      <li>A play that isn't valid doesn't use a try.</li>
+      <li>Done for the day? <a href="#/practice">Play a random one</a> from the practice set. Practice doesn't touch your streak.</li>
+    </ul>
+    <p class="kbd-note">On a keyboard: arrows move, space turns, Enter plays, Esc clears.</p>
+    <p><a class="btn primary inline" href="#/">Go to today's puzzle</a></p>
+
+    <h2>Learn more</h2>
+    <ul class="learn" id="learn"></ul>
+  </section>
+
+  <section id="view-about" class="view page" hidden aria-labelledby="about-title">
+    <!-- About copy lives in config.js (ABOUT, ABOUT_FINE). -->
+    <h1 id="about-title">About</h1>
+    <div id="about-copy"></div>
+    <!-- Later: a line about anonymous "how others played" stats, once reportResult() sends anything. -->
+    <p class="links" id="about-links"></p>
+    <p class="fine" id="about-fine"></p>
+  </section>
+</main>
+
+<footer class="foot">
+  <a href="#/how">How to play</a><a href="#/practice">Random puzzle</a><a href="#/archive">Archive</a><a href="#/about">About</a>
+</footer>
+
+<dialog id="blank-dialog" aria-labelledby="blank-title">
+  <form method="dialog">
+    <h2 id="blank-title">Which letter is the blank?</h2>
+    <div class="letters" id="letters"></div>
+    <button class="btn ghost" value="cancel">Cancel</button>
+  </form>
+</dialog>
+
+<dialog id="stats-dialog" aria-labelledby="stats-title">
+  <form method="dialog">
+    <div class="dlg-head"><h2 id="stats-title">Statistics</h2><button class="icon close" value="close" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <dl class="stat-nums" id="stat-nums"></dl>
+    <h3>Solved in</h3>
+    <div class="dist" id="dist"></div>
+    <p class="fine">Daily puzzles only, kept in this browser.</p>
+    <p class="fine" id="practice-count"></p>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

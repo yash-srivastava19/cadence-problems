@@ -1,0 +1,5 @@
+    klve+peg+sim+oracle vs sim @760000: win 0.610 ±0.096, spread +28.3 ±17.3 (100 games)
+    klve+peg+sim+oracle vs sim @760000: win 0.650 ±0.066, spread +34.3 ±12.5 (200 games)
+    klve+peg+sim+oracle vs sim @760000: win 0.647 ±0.054, spread +35.4 ±10.5 (300 games)
+klve+peg+sim+oracle vs sim @760000: win 0.647 ±0.054, spread +35.4 ±10.5 (300 games), 4.50 s a move, endgame solves 505 (gave up 0, 3.0 s each)
+CEILINGDONE

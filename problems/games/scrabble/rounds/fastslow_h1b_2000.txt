@@ -1,0 +1,1 @@
+fast2 vs fast ({'samples': 20, 'plies': 1, 'keep': 6}): 2000 games, win 0.519 ±0.022, spread +3.4 ±4.2, 19 ms/move for fast2

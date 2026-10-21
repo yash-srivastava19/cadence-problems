@@ -1,0 +1,14 @@
+{
+  "name": "toy",
+  "lexicon": {"file": "lexica/toy.txt", "url": "", "sha256": ""},
+  "tiles": {"A": [6, 1], "B": [4, 3], "C": [2, 3], "QU": [2, 9]},
+  "blanks": 2,
+  "board": [
+    "T.d.T",
+    ".D.t.",
+    "d.*.d",
+    ".t.D.",
+    "T.d.T"
+  ],
+  "rules": {"rack": 4, "bingo": 50, "exchange_min_bag": 4, "scoreless_turns": 6}
+}

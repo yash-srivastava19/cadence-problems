@@ -1,0 +1,6 @@
+recording run 20261004-131455-2d6939
+  baseline   win_rate 0.5875 spread 16.73 forfeits 0 vs_greedy 0.675 vs_champion_1 0.5 ms_per_move 6.9204 timeouts 0
+  trial 1
+    scored   win_rate 0.565 spread 19.0414 forfeits 5 vs_greedy 0.67 vs_champion_1 0.46 ms_per_move 860.398 timeouts 5
+  finished after 1 trials
+  log        cadence-runs/development/20261004-131455-2d6939.jsonl
