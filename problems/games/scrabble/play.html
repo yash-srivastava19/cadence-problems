@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scrabble Engine</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#EDF0EA;--surface:#F8F9F5;--ink:#18202A;--muted:#5A6470;--line:#D2D8CE;
+--accent:#2E6A4E;--accent-soft:#D3E5D9;--move:#B97A10;--move-soft:#F3E3C2;--bad:#B3402E;
+--b-bg:#1F5E46;--b-cell:#D9DCC8;--tw:#C8412F;--dw:#EBA3A0;--tl:#2F6FA8;--dl:#A9CDE6;--tile:#F4E2BA;--tile-ink:#2A1E0E;
+--display:"Bricolage Grotesque",system-ui,sans-serif;--body:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#10151A;--surface:#161C22;--ink:#E4E8E1;--muted:#98A2AC;--line:#2A323B;--accent:#6DBE8C;--accent-soft:#1D3528;--move:#E2AE4C;--move-soft:#3A2E16;--bad:#E3735F}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#10151A;--surface:#161C22;--ink:#E4E8E1;--muted:#98A2AC;--line:#2A323B;--accent:#6DBE8C;--accent-soft:#1D3528;--move:#E2AE4C;--move-soft:#3A2E16;--bad:#E3735F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:24px 48px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{font:700 clamp(26px,4vw,36px)/1.05 var(--display);margin:0}
+.sub{color:var(--muted);font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line)}
+th{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+td.num,th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+td.mono{font-family:var(--mono)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input,button,select{font:500 13px var(--mono);padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+input[type=text]{min-width:0;flex:1}
+input.seed{width:90px}
+button{cursor:pointer} button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--move);outline-offset:2px}
+.main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:1fr}}
+.boardwrap{background:var(--b-bg);border-radius:10px;padding:8px}
+.board{display:grid;grid-template-columns:repeat(15,1fr);gap:2px;aspect-ratio:1}
+.cell{background:var(--b-cell);border-radius:2px;position:relative;display:grid;place-items:center;font:600 7px var(--mono);color:rgba(0,0,0,.45);cursor:pointer}
+.cell.T{background:var(--tw);color:#fff}.cell.D,.cell.s{background:var(--dw)}.cell.t{background:var(--tl);color:#fff}.cell.d{background:var(--dl)}
+.cell.cursor{box-shadow:inset 0 0 0 2px var(--move)}
+.cell.cursor::after{content:attr(data-dir);position:absolute;font:700 12px var(--mono);color:var(--move)}
+.tile{position:absolute;inset:0;background:var(--tile);color:var(--tile-ink);border-radius:3px;display:grid;place-items:center;font:700 clamp(9px,1.5vw,15px) var(--mono);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.tile sub{position:absolute;right:2px;bottom:0;font-size:.5em;font-weight:500}
+.tile.blank{color:#7a5a1a;font-style:italic}
+.tile.new{outline:2px solid var(--move);outline-offset:-2px}
+.tile.pending{background:var(--move-soft);color:var(--ink);outline:2px dashed var(--move);outline-offset:-2px}
+.panel{display:flex;flex-direction:column;gap:12px}
+.scores{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.sc{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--bg)}
+.sc.on{border-color:var(--move);box-shadow:inset 0 0 0 1px var(--move)}
+.sc .n{font:600 22px var(--mono)} .sc .who{font-size:12px;color:var(--muted)}
+.rack{display:flex;gap:6px;flex-wrap:wrap;min-height:40px}
+.rt{width:38px;height:38px;background:var(--tile);color:var(--tile-ink);border:0;border-radius:5px;display:grid;place-items:center;font:700 17px var(--mono);box-shadow:0 1px 0 rgba(0,0,0,.35);position:relative;padding:0}
+.rt sub{position:absolute;right:3px;bottom:1px;font-size:9px;font-weight:500}
+.rt.sel{outline:3px solid var(--move);outline-offset:1px}
+.label{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.msg{font:13px var(--mono);min-height:20px}
+.msg.err{color:var(--bad)}
+.log{max-height:240px;overflow:auto;font:13px var(--mono)}
+.log div{display:grid;grid-template-columns:30px 40px 1fr 44px 70px 60px;gap:6px;padding:2px 4px}
+.note{font-size:12px;color:var(--muted)}
+.pill{display:inline-block;font:500 11px var(--mono);padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.busy{opacity:.6;pointer-events:none}
+.main>*,.panel>*{min-width:0} .tbl{overflow-x:auto}
+@media (max-width:520px){.sc{padding:6px 8px}.sc .n{font-size:18px}.log div{grid-template-columns:22px 30px 1fr 38px 56px 44px;gap:4px}.rt{width:34px;height:34px}}
+</style></head><body><div class="wrap">
+<header class="controls" style="justify-content:space-between">
+  <div><h1>Scrabble Engine</h1><div class="sub" id="sub">loading…</div></div>
+  <div class="controls">
+    <label class="note">seed <input class="seed" id="seed" type="number" min="0"></label>
+    <label class="note"><input type="checkbox" id="first" checked> I go first</label>
+    <button id="new">new game</button>
+    <button id="theme" aria-label="Toggle light or dark">◐</button>
+  </div>
+</header>
+<div class="main">
+  <div>
+    <div class="boardwrap" id="bw"><div class="board" id="board"></div></div>
+    <p class="note">Click a square and type a word (click again to go down), or pick a rack tile and click a square. Enter plays, Backspace takes back, Esc recalls all. A blank takes the letter you type.</p>
+  </div>
+  <div class="panel">
+    <div class="scores" id="scores"></div>
+    <div class="card"><div class="label">your rack</div><div class="rack" id="rack"></div>
+      <div class="controls" style="margin-top:10px">
+        <button class="primary" id="play">play</button><button id="recall">recall</button>
+        <button id="shuffle">shuffle</button><button id="exchange">exchange…</button>
+        <button id="pass">pass</button><button id="hint">hint</button>
+      </div>
+      <form class="controls" id="typed" style="margin-top:8px"><input type="text" id="mv" placeholder="or type: 8H WORD · H8 WORD · exchange ABC · pass" aria-label="Move"><button>send</button></form>
+      <div class="msg" id="msg" role="status"></div>
+    </div>
+    <div class="card"><div class="label" id="botlabel">the bot's thinking</div><div id="bot" class="note">No bot move yet.</div></div>
+    <div class="card" id="hintcard" hidden><div class="label">hint · the bot's view of your rack</div><div id="hintbox"></div></div>
+    <div class="card"><div class="label">moves</div><div class="log" id="log"></div></div>
+  </div>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const LBL={T:"3W",D:"2W",t:"3L",d:"2L","*":"★"};
+let S=null, N=15, cells=[], pending=[], rack=[], sel=null, cursor=null, dir="across";
+
+async function api(path,body){
+  document.body.classList.add("busy");
+  try{
+    const r=await fetch(path,body===undefined?{}:{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!r.ok) throw new Error(j.error||r.statusText);
+    return j;
+  } finally { document.body.classList.remove("busy"); }
+}
+function say(t,err){$("msg").textContent=t||"";$("msg").className="msg"+(err?" err":"");}
+
+function build(){
+  N=S.premiums.length; cells=[]; $("board").innerHTML="";
+  $("board").style.gridTemplateColumns=`repeat(${N},1fr)`;
+  S.premiums.forEach((row,r)=>[...row].forEach((p,c)=>{
+    const d=document.createElement("div"); d.className="cell "+(p==="*"?"s":p==="."?"":p); d.textContent=LBL[p]||"";
+    d.onclick=()=>clickCell(r,c); $("board").appendChild(d); cells.push(d);
+  }));
+}
+function tileHTML(t,b,cls){const v=b?0:(S.values[t]??0);return `<div class="tile${b?" blank":""}${cls?" "+cls:""}">${b?t.toLowerCase():t}<sub>${v}</sub></div>`;}
+function draw(){
+  const last=new Set(S.last.map(([r,c])=>r*N+c));
+  cells.forEach((d,i)=>{d.querySelector(".tile")?.remove(); d.classList.remove("cursor"); delete d.dataset.dir;});
+  S.grid.forEach((row,r)=>row.forEach((cell,c)=>{ if(cell) cells[r*N+c].insertAdjacentHTML("beforeend",tileHTML(cell[0],cell[1],last.has(r*N+c)?"new":"")); }));
+  pending.forEach(p=>cells[p.r*N+p.c].insertAdjacentHTML("beforeend",tileHTML(p.t,p.b,"pending")));
+  if(cursor){const d=cells[cursor.r*N+cursor.c]; d.classList.add("cursor"); d.dataset.dir=dir==="across"?"→":"↓";}
+  $("rack").innerHTML=rack.map((t,i)=>`<button class="rt${sel===i?" sel":""}" data-i="${i}" aria-label="tile ${t==="?"?"blank":t}">${t}<sub>${t==="?"?0:(S.values[t]??"")}</sub></button>`).join("");
+  const you=S.you, them=1-you;
+  $("scores").innerHTML=
+    `<div class="sc${S.to_move===you&&!S.over?" on":""}"><div class="who">you</div><div class="n">${S.scores[you]}</div></div>`+
+    `<div class="sc${S.to_move===them&&!S.over?" on":""}"><div class="who">bot · ${esc(S.player)}</div><div class="n">${S.scores[them]}</div></div>`+
+    `<div class="sc"><div class="who">bag · bot holds</div><div class="n">${S.bag} · ${S.held}</div></div>`;
+  $("log").innerHTML=S.log.map((m,i)=>`<div><span>${i+1}</span><span>${m.who}</span><span>${esc(m.move)}</span><span>+${m.score}</span><span>${m.scores[you]}–${m.scores[them]}</span><span>${m.time!=null?m.time.toFixed(2)+"s":""}</span></div>`).join("");
+  $("log").scrollTop=$("log").scrollHeight;
+  const b=S.bot;
+  if(b){
+    const lm=[...S.log].reverse().find(m=>m.who==="bot");
+    $("botlabel").textContent=`the bot's thinking · ${b.player}`;
+    $("bot").innerHTML=`<div style="margin-bottom:6px">played <b class="mono">${esc(b.bestmove)}</b> +${lm?lm.score:""} · ${b.time.toFixed(2)}s · ${b.legal} legal moves${b.budget?` · ${b.budget} simulations`:""}</div>`+table(b);
+  }
+  $("sub").textContent=S.over
+    ? `game over (${S.end}) · ${S.scores[you]}–${S.scores[them]} · ${S.scores[you]>S.scores[them]?"you win":S.scores[you]<S.scores[them]?"the bot wins":"a tie"} · the bot kept ${(S.bot_rack||[]).join("")||"nothing"}`
+    : `seed ${S.seed} · you vs ${S.player} · ${S.to_move===S.you?"your move":"bot to move"}`;
+  ["play","recall","shuffle","exchange","pass","hint"].forEach(id=>$(id).disabled=S.over);
+}
+function table(a){
+  return `<div class="tbl"><table><tr><th>#</th><th>move</th><th class="num">score</th>${a.moves[0]&&"leave" in a.moves[0]?"<th>leave</th>":""}<th class="num">${esc(a.unit)}</th></tr>`+
+    a.moves.map((m,i)=>`<tr${m.move===a.bestmove?' style="background:var(--move-soft)"':""}><td class="num">${i+1}</td><td class="mono">${esc(m.move)}</td><td class="num">${m.score}</td>${"leave" in m?`<td class="mono">${esc(m.leave||"-")}</td>`:""}<td class="num">${m.value>=0?"+":""}${m.value.toFixed(a.unit.startsWith("win")?3:1)}</td></tr>`).join("")+"</table></div>";
+}
+function load(s){S=s; if(cells.length!==s.premiums.length**2) build(); pending=[]; rack=[...S.rack]; sel=null; cursor=null; $("hintcard").hidden=true; draw();}
+
+function filled(r,c){return S.grid[r][c]||pending.some(p=>p.r===r&&p.c===c);}
+function place(r,c,i,letter){
+  let t=rack[i], b=false;
+  if(t==="?"){ b=true; t=(letter||prompt("Letter for the blank?")||"").toUpperCase(); if(!/^[A-Z]$/.test(t)) return false; }
+  pending.push({r,c,t,b,src:rack[i]}); rack.splice(i,1); sel=null; return true;
+}
+function advance(){
+  if(!cursor) return;
+  let {r,c}=cursor;
+  do{ if(dir==="across") c++; else r++; } while(r<N&&c<N&&filled(r,c));
+  cursor=(r<N&&c<N)?{r,c}:null;
+}
+function clickCell(r,c){
+  if(S.over) return;
+  const k=pending.findIndex(p=>p.r===r&&p.c===c);
+  if(k>=0){ rack.push(pending[k].src); pending.splice(k,1); draw(); return; }
+  if(S.grid[r][c]) return;
+  if(sel!==null){ if(place(r,c,sel)) { cursor={r,c}; advance(); } draw(); return; }
+  if(cursor&&cursor.r===r&&cursor.c===c) dir=dir==="across"?"down":"across"; else cursor={r,c};
+  draw();
+}
+function typeLetter(L){
+  if(!cursor) return;
+  let i=rack.indexOf(L); if(i<0) i=rack.indexOf("?");
+  if(i<0){ say(`no ${L} on your rack`,true); return; }
+  if(place(cursor.r,cursor.c,i,L)) advance();
+  say(""); draw();
+}
+function back(){
+  const p=pending.pop(); if(!p) return;
+  rack.push(p.src); cursor={r:p.r,c:p.c}; draw();
+}
+function recall(){ pending.forEach(p=>rack.push(p.src)); pending=[]; sel=null; draw(); }
+
+async function send(body){
+  try{ say("thinking…"); load(await api("/api/move",body)); say(S.log.length?`${S.log.at(-1).who==="bot"?"bot":"you"}: ${S.log.at(-1).move}`:""); }
+  catch(e){ say(e.message,true); }
+}
+$("rack").addEventListener("click",e=>{const d=e.target.closest("[data-i]"); if(!d) return; const i=+d.dataset.i; sel=sel===i?null:i; draw();});
+$("play").onclick=()=>{ if(!pending.length){say("place some tiles first",true);return;} send({tiles:pending.map(p=>[p.r,p.c,p.t,p.b])}); };
+$("recall").onclick=recall;
+$("shuffle").onclick=()=>{ for(let i=rack.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rack[i],rack[j]]=[rack[j],rack[i]];} sel=null; draw(); };
+$("exchange").onclick=()=>{ const t=prompt("Tiles to exchange (? for a blank):"); if(t) send({move:"exchange "+t.trim()}); };
+$("pass").onclick=()=>{ if(confirm("Pass this turn?")) send({move:"pass"}); };
+$("hint").onclick=async()=>{ try{ say("thinking…"); const a=await api("/api/hint",{}); $("hintbox").innerHTML=`<div class="note" style="margin-bottom:6px">${a.time.toFixed(2)}s · best <b class="mono">${esc(a.bestmove)}</b></div>`+table(a); $("hintcard").hidden=false; say(""); }catch(e){ say(e.message,true); } };
+$("typed").onsubmit=e=>{ e.preventDefault(); const v=$("mv").value.trim(); if(v){ send({move:v}); $("mv").value=""; } };
+$("new").onclick=async()=>{ try{ say("starting…"); const seed=$("seed").value; load(await api("/api/new",{seed:seed?+seed:null,you_first:$("first").checked})); $("seed").value=S.seed; say(""); }catch(e){ say(e.message,true); } };
+$("theme").onclick=()=>{ const d=document.documentElement; const dark=d.dataset.theme?d.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches; d.dataset.theme=dark?"light":"dark"; };
+document.addEventListener("keydown",e=>{
+  if(!S||S.over||["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName)||e.ctrlKey||e.metaKey||e.altKey) return;
+  if(/^[a-zA-Z]$/.test(e.key)){ typeLetter(e.key.toUpperCase()); e.preventDefault(); }
+  else if(e.key==="Backspace"){ back(); e.preventDefault(); }
+  else if(e.key==="Enter"){ $("play").click(); e.preventDefault(); }
+  else if(e.key==="Escape"){ recall(); cursor=null; draw(); }
+});
+api("/api/state").then(s=>{load(s); $("seed").value=S.seed;}).catch(e=>{$("sub").textContent="could not reach the engine: "+e.message;});
+</script></body></html>

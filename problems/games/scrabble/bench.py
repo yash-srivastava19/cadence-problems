@@ -66,6 +66,7 @@ def play_game(args: tuple[int, str, str]) -> dict:
         frames.append(
             {
                 "turn": g.turn,
+                "cgp": cgp.encode(g),
                 "player": p,
                 "rack": view["rack"],
                 "bag": view["bag"],

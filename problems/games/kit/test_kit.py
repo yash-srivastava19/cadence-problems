@@ -121,3 +121,26 @@ def test_the_same_canary_in_process_does_find_it():
         Hidden(), [Local(namespace["choose"], "in-process"), Local(low, "low")], 5
     )
     assert record["actions"][0::2] == [1, 1]
+
+
+def test_a_slow_player_forfeits_and_the_next_game_is_clean(tmp_path):
+    """A late answer must never be read as the reply to the next question."""
+    path = write(tmp_path, "    import time\n    time.sleep(1.5)\n    return 1")
+    me = Remote(path, "slow", seconds=0.5)
+    try:
+        first = play(Hidden(), [me, Local(low, "low")], seed=0)
+        second = play(Hidden(), [me, Local(low, "low")], seed=1)
+    finally:
+        me.close()
+    assert first["forfeit"]["player"] == 0
+    assert second["forfeit"]["player"] == 0  # forfeits again; never a stale 1
+
+
+def test_a_remote_player_reads_moves_with_brackets_or_dots(tmp_path):
+    body = "    assert legal[1].label == legal[1]['label']\n    return 1"
+    me = Remote(write(tmp_path, body), "remote")
+    try:
+        record = play(Hidden(), [me, Local(low, "low")], seed=0)
+    finally:
+        me.close()
+    assert record["returns"] == [2.0, 0.0]

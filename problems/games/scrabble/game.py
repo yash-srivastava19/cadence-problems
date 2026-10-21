@@ -55,6 +55,19 @@ class Game:
         for p in (0, 1):
             self._draw(p, self.rs.rack)
 
+    @classmethod
+    def at(cls, rs: Ruleset, source: "Game", racks, bag, seed: int) -> "Game":
+        """A game in the middle: source's board, scores and turn, with these
+        racks and this bag. Used to branch into worlds the teacher invents."""
+        g = cls.__new__(cls)
+        g.rs, g.seed, g.rng = rs, seed, random.Random(seed)
+        g.grid = [list(row) for row in source.grid]
+        g.racks = [sorted(r) for r in racks]
+        g.bag = list(bag)
+        g.scores, g.turn = list(source.scores), source.turn
+        g.scoreless, g.over, g.end = source.scoreless, False, ""
+        return g
+
     @property
     def to_move(self) -> int:
         return self.turn % 2

@@ -63,10 +63,15 @@ CANARY = (
 """
 )
 
+POOL = len(list((Path(__file__).parent / "opponents").glob("*.py")))
+GAMES = 50  # per opponent per seed: 25 bags, both seatings
+
 EXPECT = [
-    ("faster greedy", "scored", lambda m: m["win_rate"] == 0.5 and m["spread"] == 0),
-    ("leave", "scored", lambda m: m["win_rate"] > 0.55),
-    ("illegal move", "scored", lambda m: m["win_rate"] == 0 and m["forfeits"] == 50),
+    # A copy of greedy plays greedy to exactly even, whoever else is in the pool.
+    ("faster greedy", "scored", lambda m: m["vs_greedy"] == 0.5),
+    ("leave", "scored", lambda m: m["vs_greedy"] > 0.55),
+    ("illegal move", "scored",
+     lambda m: m["win_rate"] == 0 and m["forfeits"] == GAMES * POOL),
     ("crash", "failed", None),
     ("canary", "failed", None),
     ("prose", "abandoned", None),

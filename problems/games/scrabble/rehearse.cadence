@@ -8,6 +8,9 @@ metrics:
   win_rate: maximize
   spread: maximize
   forfeits: minimize
+  vs_greedy: maximize
+  vs_champion_1: maximize
+  ms_per_move: minimize
 
 objective:
   weighted_sum: {win_rate: 1.0}

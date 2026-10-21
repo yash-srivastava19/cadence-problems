@@ -78,6 +78,7 @@ input[type=range]{flex:1;min-width:140px;accent-color:var(--accent)}
     <div class="card tbl"><div class="label">top moves by our equity (points + a simple leave value) · not an engine's opinion</div><table id="top"></table></div>
   </div>
 </div>
+<div class="card"><div class="label">this position as CGP (full state, before the move)</div><div class="mono" id="cgp" style="font-size:12px;word-break:break-all;user-select:all"></div></div>
 <div class="card"><div class="label">every turn · click to jump</div><div class="log" id="log"></div></div>
 </div>
 <p class="note">Every number here was computed by the Python engine and stored in the records. This page only draws them.</p>
@@ -132,6 +133,7 @@ function draw(){
   $("rack").innerHTML=f.rack.map(t=>{const j=used.indexOf(t);if(j>=0)used.splice(j,1);return `<div class="rt${j>=0?" used":""}">${t}</div>`;}).join("");
   $("top").innerHTML='<tr><th class="num">rank</th><th>move</th><th class="num">points</th><th class="num">equity</th><th></th></tr>'+
     f.top.map(m=>`<tr class="${m.chosen?"chosen":""} ${m.rank===1?"best":""}"><td class="num">${m.rank}</td><td class="mono">${esc(m.label)}</td><td class="num">${m.score}</td><td class="num">${m.equity}</td><td>${m.chosen?'<span class="pill">played</span>':""}</td></tr>`).join("");
+  $("cgp").textContent=f.cgp||"(not in these records)";
   $("slider").max=F.length-1; $("slider").value=k;
   $("pos").textContent=`turn ${k+1} / ${F.length}`;
   [...$("log").children].forEach((d,i)=>d.classList.toggle("on",i===k));

@@ -12,6 +12,7 @@ import json
 import select
 import subprocess
 import sys
+import time
 from collections.abc import Callable
 from pathlib import Path
 
@@ -41,9 +42,13 @@ class Remote:
     """An untrusted player, in its own process, spoken to in JSON lines."""
 
     def __init__(self, path: Path, name: str, seconds: float = 10.0):
-        self.name, self.seconds = name, seconds
+        self.path, self.name, self.seconds = path, name, seconds
+        self.calls, self.used = 0, 0.0  # moves answered, seconds spent on them
+        self._start()
+
+    def _start(self) -> None:
         self.proc = subprocess.Popen(
-            [sys.executable, "-m", "kit.player", str(path)],
+            [sys.executable, "-m", "kit.player", str(self.path)],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             text=True,
@@ -59,10 +64,15 @@ class Remote:
             self.proc.stdin.flush()
         except BrokenPipeError as error:
             raise Crashed(f"{self.name} has exited") from error
+        started = time.monotonic()
         ready, _, _ = select.select([self.proc.stdout], [], [], self.seconds)
         if not ready:
+            # Its late answer would be read as the reply to the next question.
+            self._stop()
+            self._start()
             raise Forfeit(f"no answer within {self.seconds}s")
         line = self.proc.stdout.readline()
+        self.calls, self.used = self.calls + 1, self.used + time.monotonic() - started
         if not line:
             raise Crashed(f"{self.name} exited with {self.proc.wait()}")
         reply = json.loads(line)
@@ -71,9 +81,29 @@ class Remote:
         return _checked(reply.get("choice"), legal)
 
     def close(self) -> None:
+        self._stop()
+
+    def _stop(self) -> None:
         if self.proc.stdin:
             self.proc.stdin.close()
-        self.proc.wait(timeout=5)
+        try:
+            self.proc.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            self.proc.kill()
+            self.proc.wait()
+
+
+class Record(dict):
+    """A dict that can also be read with dots: move["score"] or move.score.
+
+    Players are written by models, and models mix the two styles. One type
+    that answers both removes that whole class of crash."""
+
+    def __getattr__(self, name: str):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name) from None
 
 
 def _checked(choice, legal: list[dict]) -> int:
@@ -90,7 +120,7 @@ def serve(path: str) -> None:
     replies, sys.stdout = sys.stdout, sys.stderr  # a stray print cannot corrupt
     spec.loader.exec_module(module)
     for line in sys.stdin:
-        request = json.loads(line)
+        request = json.loads(line, object_hook=Record)
         try:
             reply = {"choice": module.choose(request["observation"], request["legal"])}
         except Exception as error:

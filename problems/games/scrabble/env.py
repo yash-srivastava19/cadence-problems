@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from scrabble import cgp
 from scrabble.game import Game, Move
 from scrabble.ruleset import load
 
@@ -37,7 +38,7 @@ class ScrabbleEnv:
 
     def observe(self, g: Game, player: int) -> dict:
         assert player == g.to_move, "a player is only shown the board on its turn"
-        return g.view()
+        return {**g.view(), "cgp": cgp.encode(g, viewer=player)}
 
     def legal(self, g: Game) -> list[dict]:
         moves = g.legal()
