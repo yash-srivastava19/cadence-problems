@@ -1,0 +1,49 @@
+{
+ "name": "n2-duel-v1-spread",
+ "command": [
+  "uv",
+  "run",
+  "--with",
+  "numpy",
+  "--with",
+  "torch",
+  "--index",
+  "https://download.pytorch.org/whl/cpu",
+  "python",
+  "-m",
+  "scrabble.value2",
+  "duel",
+  "--who",
+  "v1-spread",
+  "--against",
+  "steady",
+  "--first",
+  "620000"
+ ],
+ "code_sha256": "e6806993b60afc4ca10450d220a5ccb65e1e8cf857adfc5c84c9140315a30e83",
+ "source": "cadence-problems@b52ae28-dirty+value2",
+ "models": {
+  "rounds/value/net.pt": "8bfe0147dfd8a20f0f0e004dad59ff3600d0a2ab7344323eb2f9be6df28238e0",
+  "rounds/value2/net_v1.pt": "0f32e0925325788034d0a6accbb84aff1fc4f6e6b4955438579d4e8c3b3ca590",
+  "rounds/value2/net_v2.pt": "3bac1ff8bc7278a34ba9f7b40e24e6ab686ee8205dafcdfd2c70b94ba8355c66",
+  "rounds/fastslow/weights.json": "8f4c0246b1f30cf0805b29ea9c5171cc1f97f1415061857a209b7d984c5f1615",
+  "rounds/value/linear.json": "6ba26799f2c0f2358f64f62537f001556b25bea78ca966c6c82a94b46118f3ad"
+ },
+ "machine": {
+  "host": "ip-172-31-36-123",
+  "cpus": 16,
+  "python": "3.12.3",
+  "instance": "c6a.4xlarge"
+ },
+ "start": "2026-10-17T08:57:51+0000",
+ "end": "2026-10-17T09:08:47+0000",
+ "exit": 0,
+ "outputs": {
+  "duel_v1-spread_vs_steady_620000.jsonl": "4ed96af65b368b459d0fe1a1e8a74eeb9c5a7536bf744662c64a35c1cb6c9033",
+  "duels.txt": "55b2be3d3bbd611eda1b02c2f5c0a308a35fcaa9ab2b1e42cec4779f87d2bff4",
+  "extras.npz": "1edd51acd003352ab5452057f52240c45203bf444231fb230fb14615cc85da3c",
+  "net_v1.pt": "0f32e0925325788034d0a6accbb84aff1fc4f6e6b4955438579d4e8c3b3ca590",
+  "net_v2.pt": "3bac1ff8bc7278a34ba9f7b40e24e6ab686ee8205dafcdfd2c70b94ba8355c66",
+  "train.txt": "8399490e5d85cf7255f8f35b283ed49fd1a55409d31d6763ea4f649cac8e22c2"
+ }
+}

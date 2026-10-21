@@ -1,0 +1,7 @@
+200 positions
+S3 picks klv's top move: 50%
+rank of S3's pick in klv's top 8: 1.38 on average
+one rollout's sd: 25.9 (median)
+sd of the paired difference, top 1 vs top 2 (same worlds): 25.1
+equity gap top 1 to top 2: 3.0, to top 8: 11.1 (median)
+rollout mean minus equity, top 1: -2.3

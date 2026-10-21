@@ -1,0 +1,138 @@
+--- champion_1.py
++++ candidate.py
+@@ -1,10 +1,11 @@
+-"""Champion 1: Gemini 3.5 Flash, run 20260930-174310-bd3261, trial 3.
++"""The player cadence evolves. Each round it starts from the current champion.
+ 
+-0.675 against greedy on the training bags. Converted from the old Move-object
+-API to the dict API by renaming attribute access only; the logic is unchanged.
++It runs in its own process and is sent plain JSON each turn, so it sees only
++what a player may see. Everything outside the markers stays put.
+ """
+ 
+ 
++# CADENCE:BEGIN
+ def choose(view: dict, moves: list[dict]) -> int:
+     """Return one of `moves`. `view` is everything this player may see."""
+     # Standard heuristic values for keeping tiles on the rack
+@@ -49,6 +50,11 @@
+             for char in unseen:
+                 unseen_score += TILE_VALUES.get(char.upper(), 0)
+     
++    # Smooth transition to endgame
++    # If bag_size <= 8, we start factoring in the endgame rack-point penalty
++    weight_endgame = max(0.0, min(1.0, (8 - bag_size) / 8.0))
++    weight_midgame = 1.0 - weight_endgame
++
+     best_move = moves[0]
+     best_utility = -float('inf')
+     
+@@ -56,54 +62,58 @@
+         score = move["score"]
+         leave = [c.upper() for c in move["leave"]] if move["leave"] is not None else []
+         
+-        if bag_size == 0:
+-            if not leave:
+-                # Going out gives us the opponent's tile values, and they lose them (2x swing)
+-                leave_val = 2.0 * unseen_score
++        # Calculate mid-game leave value
++        mid_game_val = 0.0
++        if leave:
++            has_q = 'Q' in leave
++            has_u = 'U' in leave
++            for char in leave:
++                val = VAL.get(char, 0.0)
++                if char == 'Q' and has_u:
++                    val = 2.0
++                elif char == 'U' and has_q:
++                    val = 1.0
++                mid_game_val += val
++            
++            if has_q and not has_u:
++                mid_game_val -= 8.0
++            
++            # Penalize duplicate letters
++            counts = {}
++            for char in leave:
++                if char != '?':
++                    counts[char] = counts.get(char, 0) + 1
++            for char, count in counts.items():
++                if count > 1:
++                    mid_game_val -= (count - 1) * (1.0 if char == 'S' else 2.5)
++            
++            # Maintain a healthy vowel/consonant balance (target ~43% vowels)
++            vowels = sum(1 for c in leave if c in VOWELS)
++            consonants = sum(1 for c in leave if c not in VOWELS and c != '?')
++            blanks = sum(1 for c in leave if c == '?')
++            total = vowels + consonants + blanks
++            if total > 1:
++                ideal_v = round(total * 0.43)
++                # Find the best assignment of blanks to vowels/consonants to minimize penalty
++                best_diff = 99
++                for v_blank in range(blanks + 1):
++                    diff = abs((vowels + v_blank) - ideal_v)
++                    if diff < best_diff:
++                        best_diff = diff
++                mid_game_val -= best_diff * 2.0
++
++        # Calculate endgame leave value
++        if not leave:
++            if bag_size == 0:
++                endgame_val = 2.0 * unseen_score
+             else:
+-                # Penalize remaining tiles on our rack to mitigate opponent going out
+-                leave_val = -2.0 * sum(TILE_VALUES.get(c, 0) for c in leave)
+-            utility = score + leave_val
++                endgame_val = 0.0
+         else:
+-            leave_val = 0.0
+-            if leave:
+-                has_q = 'Q' in leave
+-                has_u = 'U' in leave
+-                for char in leave:
+-                    val = VAL.get(char, 0.0)
+-                    if char == 'Q' and has_u:
+-                        val = 2.0
+-                    elif char == 'U' and has_q:
+-                        val = 1.0
+-                    leave_val += val
+-                
+-                if has_q and not has_u:
+-                    leave_val -= 8.0
+-                
+-                # Penalize duplicate letters
+-                counts = {}
+-                for char in leave:
+-                    if char != '?':
+-                        counts[char] = counts.get(char, 0) + 1
+-                for char, count in counts.items():
+-                    if count > 1:
+-                        leave_val -= (count - 1) * (1.0 if char == 'S' else 2.5)
+-                
+-                # Maintain a healthy vowel/consonant balance (target ~43% vowels)
+-                vowels = 0
+-                consonants = 0
+-                for c in leave:
+-                    if c in VOWELS:
+-                        vowels += 1
+-                    elif c != '?':
+-                        consonants += 1
+-                
+-                total = vowels + consonants
+-                if total > 1:
+-                    ideal_v = round(total * 0.43)
+-                    leave_val -= abs(vowels - ideal_v) * 2.0
++            endgame_val = -2.0 * sum(TILE_VALUES.get(c, 0) for c in leave)
+             
+-            utility = score + leave_val * leave_weight
++        # Combine mid-game and endgame leave values
++        leave_val = weight_midgame * (mid_game_val * leave_weight) + weight_endgame * endgame_val
++        utility = score + leave_val
+         
+         # Defensive check: Avoid opening empty Triple Word Score squares
+         tws_penalty = 0.0
+@@ -150,3 +160,4 @@
+             best_move = move
+             
+     return moves.index(best_move)
++# CADENCE:END

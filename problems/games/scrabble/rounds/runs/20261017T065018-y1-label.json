@@ -1,0 +1,34 @@
+{
+ "name": "y1-label",
+ "command": [
+  "uv",
+  "run",
+  "--with",
+  "numpy",
+  "--with",
+  "torch",
+  "--index",
+  "https://download.pytorch.org/whl/cpu",
+  "python",
+  "-m",
+  "scrabble.oracle",
+  "label",
+  "--positions",
+  "1000"
+ ],
+ "code_sha256": "f88f6e194ee232719db36f1e2723679264fb798d963c5e28d95fa9b228507879",
+ "source": "cadence-problems@b52ae28-dirty",
+ "machine": {
+  "host": "ip-172-31-36-123",
+  "cpus": 16,
+  "python": "3.12.3",
+  "instance": "c6a.4xlarge"
+ },
+ "start": "2026-10-17T06:50:18+0000",
+ "end": "2026-10-17T10:49:43+0000",
+ "exit": 0,
+ "outputs": {
+  "positions.jsonl": "32e8984f4ea5d018666b781309a0596a0580b4dc17b6c26e70ea9d52840ca692",
+  "run.txt": "5112384904ab9d5815ef1b9bfc4d98530c4a8cbfaf6cb85ee0ed79c68deaace3"
+ }
+}

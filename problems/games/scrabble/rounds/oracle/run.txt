@@ -1,0 +1,48 @@
+    50/1000 positions
+    100/1000 positions
+    150/1000 positions
+    200/1000 positions
+    250/1000 positions
+Downloading sympy (6.0MiB)
+Downloading networkx (2.0MiB)
+Downloading numpy (15.9MiB)
+Downloading torch (187.2MiB)
+Downloading setuptools (1.2MiB)
+ Downloaded networkx
+ Downloaded setuptools
+ Downloaded sympy
+ Downloaded numpy
+ Downloaded torch
+Installed 11 packages in 201ms
+    300/1000 positions
+    350/1000 positions
+    400/1000 positions
+    450/1000 positions
+    500/1000 positions
+    550/1000 positions
+    600/1000 positions
+    650/1000 positions
+    700/1000 positions
+    750/1000 positions
+    800/1000 positions
+    850/1000 positions
+    900/1000 positions
+    950/1000 positions
+    1000/1000 positions
+oracle noise: the two halves of the worlds pick the same best move in 160/839 positions
+1000 positions, 24 worlds each
+fast_0: win regret +0.0689 ±0.0063, spread regret +11.22 ±0.85 (1000 scored, 0 off the list)
+steady: win regret +0.0688 ±0.0063, spread regret +11.19 ±0.87 (1000 scored, 0 off the list)
+linear: win regret +0.0693 ±0.0060, spread regret +11.65 ±0.88 (1000 scored, 0 off the list)
+net: win regret +0.0695 ±0.0062, spread regret +11.48 ±0.89 (1000 scored, 0 off the list)
+slow: win regret +0.0660 ±0.0059, spread regret +10.99 ±0.85 (1000 scored, 0 off the list)
+fast_0 - steady: win -0.0001 ±0.0032, spread -0.0243 ±0.5946 (1000 positions)
+fast_0 - linear: win +0.0004 ±0.0041, spread +0.4327 ±0.6341 (1000 positions)
+fast_0 - net: win +0.0006 ±0.0035, spread +0.2635 ±0.6470 (1000 positions)
+fast_0 - slow: win -0.0028 ±0.0051, spread -0.2303 ±0.8012 (1000 positions)
+steady - linear: win +0.0005 ±0.0037, spread +0.4570 ±0.5865 (1000 positions)
+steady - net: win +0.0007 ±0.0031, spread +0.2878 ±0.5989 (1000 positions)
+steady - slow: win -0.0028 ±0.0047, spread -0.2060 ±0.7335 (1000 positions)
+linear - net: win +0.0002 ±0.0035, spread -0.1692 ±0.5384 (1000 positions)
+linear - slow: win -0.0032 ±0.0044, spread -0.6630 ±0.7865 (1000 positions)
+net - slow: win -0.0034 ±0.0050, spread -0.4938 ±0.7766 (1000 positions)

@@ -1,0 +1,1 @@
+slow vs fast ({'samples': 20, 'plies': 1, 'keep': 6}): 200 games, win 0.580 ±0.068, spread +17.2 ±12.9, 14061 ms/move for slow
