@@ -733,3 +733,12 @@ Predictions:
 - Q1b: 0.55 (0.50-0.60). Same 2-ply method as our sim, but its iteration
   budget is fixed for old hardware: in the smoke test it used 4.8 s a move
   against our 7.4 s. We had more compute, and the result must say so.
+
+Q1 amendment (same day, before any scored game): the "Quackle quirk" above
+was our bug. The wrapper gave Quackle a bag 7 tiles too big and phantom tiles
+in its unseen pool (setOppRack tosses the old rack back whatever it is told),
+so it thought late exchanges were legal. Fixed; every reply now carries
+Quackle's bag count and unseen tiles, and either differing from ours voids the
+game. The replacement path stays as a guard and is expected to count 0. All
+earlier smoke games, and the 4.8 s a move figure, came from the broken setup
+and are discarded; the compute comparison will come from the real runs.
