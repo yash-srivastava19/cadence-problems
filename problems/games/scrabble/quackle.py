@@ -34,8 +34,9 @@ class Server:
         if not ready.startswith("READY") or "=0" in ready:  # every strategy file must load
             raise RuntimeError(f"qserve did not start cleanly: {ready!r}")
 
-    def move(self, g: Game, played: list, seed: int) -> tuple[str, int]:
-        """Quackle's move as Macondo would write it, and its score."""
+    def move(self, g: Game, played: list, seed: int) -> tuple[str, int, int]:
+        """Quackle's move as Macondo would write it, its score, and how many illegal
+        exchanges Quackle ranked above it."""
         me = g.to_move
         unseen = "".join(t * n for t, n in g.view()["unseen"].items())
         request = gcg(played, me) + [f"SEED {seed * 1000 + g.turn}", f"ME {me}", f"RACK {''.join(g.racks[me])}",
@@ -47,16 +48,16 @@ class Server:
             raise RuntimeError("qserve exited")
         if reply[0] != "MOVE":
             raise Mismatch(" ".join(reply))
-        kind, where, tiles, score, mine, theirs, rescored = reply[1:]
+        kind, where, tiles, score, mine, theirs, rescored, skipped = reply[1:]
         if int(rescored):
             raise Mismatch(f"Quackle rescored {rescored} earlier moves")
         if [int(mine), int(theirs)] != [g.scores[me], g.scores[1 - me]]:
             raise Mismatch(f"totals {mine}/{theirs}, ours {g.scores[me]}/{g.scores[1 - me]}")
         if kind == "exch":
-            return f"exch {tiles}", 0
+            return f"exch {tiles}", 0, int(skipped)
         if kind == "pass":
-            return "pass", 0
-        return f"{where} {tiles}", int(score)
+            return "pass", 0, int(skipped)
+        return f"{where} {tiles}", int(score), int(skipped)
 
 
 def gcg(played: list, me: int) -> list[str]:

@@ -12,7 +12,7 @@
 // The opponent's real rack is never sent. When the bag is not empty Quackle
 // is given a random guess of the right size, so its bag count is right; with
 // the bag empty the unseen tiles are the opponent's rack, as in a real game.
-// Reply: MOVE <kind> <where> <tiles> <score> <my score> <their score> <moves rescored>.
+// Reply: MOVE <kind> <where> <tiles> <score> <my score> <their score> <moves rescored> <1 if its first choice was an illegal exchange>.
 
 #include <QtCore>
 #include <cstdio>
@@ -144,14 +144,31 @@ int main(int argc, char **argv)
 		pos.setOppRack(Quackle::Rack(theirs), false);
 
 		player->setPosition(pos);
+		// Quackle's endgame code can rank an exchange first with under 7 in the bag, which its
+		// own rules forbid: only then ask for its ranking and take the best legal move, and say
+		// so. Asking for more moves every turn would change how much it sims.
 		Quackle::Move m = player->move();
+		int skipped = 0;
+		if (m.action == Quackle::Move::Exchange && !pos.exchangeAllowed())
+		{
+			skipped = 1;
+			player->setPosition(pos);
+			Quackle::MoveList ranked = player->moves(10);
+			m = Quackle::Move::createPassMove();
+			for (const auto &candidate : ranked)
+			{
+				if (candidate.action == Quackle::Move::Exchange) continue;
+				m = candidate;
+				break;
+			}
+		}
 		const char *kind = m.action == Quackle::Move::Place ? "play" : m.action == Quackle::Move::Exchange ? "exch" : "pass";
 		string where = m.action == Quackle::Move::Place ? m.positionString() : "-";
 		string tiles = Util::qstringToStdString(Util::letterStringToQString(m.tiles()));
 		if (tiles.empty()) tiles = "-";
 		int mine = pos.currentPlayer().score(), other = 0;
 		for (const auto &p : pos.players()) if (p.id() != me) other = p.score();
-		fprintf(reply, "MOVE %s %s %s %d %d %d %d\n", kind, where.c_str(), tiles.c_str(), m.score, mine, other, rescored);
+		fprintf(reply, "MOVE %s %s %s %d %d %d %d %d\n", kind, where.c_str(), tiles.c_str(), m.score, mine, other, rescored, skipped);
 		fflush(reply);
 		delete game;
 	}

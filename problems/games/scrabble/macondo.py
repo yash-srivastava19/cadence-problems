@@ -125,6 +125,7 @@ def match(g: Game, moves, text: str) -> int:
         for i, m in enumerate(moves):
             if m.kind == "exchange" and sorted(m.returned) == tiles:
                 return i
+        raise ValueError(f"no legal exchange matches {text!r} (rack {''.join(g.racks[g.to_move])}, bag {len(g.bag)})")
     if "pass" in text.lower():
         return next(i for i, m in enumerate(moves) if m.kind == "pass")
     coord, word = text.split()[:2]
@@ -143,6 +144,7 @@ def match(g: Game, moves, text: str) -> int:
 
 _shell, _who, _solver, _vs, _their_solver, _quackle = None, None, None, "hasty", None, None
 _seen = [0, 0, 0.0]
+_fixed = [0]  # illegal exchanges Quackle ranked first, replaced by its best legal move
 
 
 def _init(who: str, vs: str = "hasty") -> None:
@@ -217,7 +219,8 @@ def winning(g: Game, moves) -> int:
 def their_move(g: Game, moves, played: list, seed: int) -> int:
     if _quackle is not None:
         from scrabble.quackle import Mismatch
-        text, score = _quackle.move(g, played, seed)
+        text, score, skipped = _quackle.move(g, played, seed)
+        _fixed[0] += skipped
         i = match(g, moves, text)
         if moves[i].score != score:
             raise Mismatch(f"{text} scores {score} in Quackle, {moves[i].score} here")
@@ -262,6 +265,7 @@ def _retried(choose, *args) -> int:
 def duel_game(seed: int, seat: int, log: bool = False) -> dict:
     g = Game(fastslow._rs, seed)
     secs, turns, same, theirs, history, played = 0.0, 0, 0, 0.0, [], []
+    _fixed[0] = 0
     while not g.over:
         moves = g.legal()
         t = time.perf_counter()
@@ -286,6 +290,8 @@ def duel_game(seed: int, seat: int, log: bool = False) -> dict:
     out = {"seed": seed, "seat": seat, "points": 1.0 if mine > theirs else 0.5 if mine == theirs else 0.0,
            "spread": mine - theirs, "secs": round(secs / max(1, turns), 3), "same": same, "turns": turns,
            "their_secs": round(their_secs, 1)}
+    if _quackle is not None:
+        out["quackle_fixed"] = _fixed[0]
     if log:
         out["history"] = history
     solver = _solver
@@ -329,6 +335,9 @@ def duel(who: str, bags: int, first: int, vs: str = "hasty", log: bool = False) 
             calls = sum(x[0] for x in solved)
             line += (f", endgame solves {calls} (gave up {sum(x[1] for x in solved)},"
                      f" {sum(x[2] for x in solved) / max(1, calls):.1f} s each)")
+        if vs.startswith("quackle"):
+            line += f", Quackle illegal exchanges replaced {sum(x.get('quackle_fixed', 0) for x in timed)}"
+            line += f", their s a move {sum(x['their_secs'] for x in timed) / sum(x['turns'] for x in timed):.2f}"
         if who == "klv":
             line += f", same move as HastyBot {sum(x['same'] for x in timed) / sum(x['turns'] for x in timed):.1%}"
     print(line, flush=True)

@@ -698,3 +698,38 @@ spread +35.4; 4.50 s a move. Paired against H1+H2 on the same games:
 Over the +0.06 bar: rack inference is worth building and gating offline.
 A perfect read is worth about 12 points of win rate; a real inference gets
 a fraction of that.
+
+## Q1: against Quackle (written 2026-10-31, before any scored game)
+
+Question: how does our frozen B1 player (klve+peg+sim) do against Quackle, the
+open-source engine Scrabble players know, as shipped?
+
+Opponents: Quackle at commit 35e11bb (github.com/quackle/quackle), its own
+tile values (default_english superleaves, syn2, worths, vcplace, bogowin; all
+must load), on our ENABLE list (172,823 words), one thread, no inference.
+- Q1a: Static Player (best move by score plus kept tiles).
+- Q1b: Championship Player (its stock simming player: 2-ply sims, its own
+  pre-endgame and endgame players).
+
+Harness (scrabble/quackle.py, qserve): Quackle gets the game so far, its own
+rack, the unseen tiles and our rack size, never our rack. A game is void when
+Quackle rescores any earlier move, its totals differ from ours, its move is
+not legal here, or its score differs. One known Quackle quirk is replaced, not
+voided: its endgame code sometimes ranks an exchange first with under 7 in the
+bag, which its own rules forbid; then it gets its best legal move from its own
+ranking, and the count is reported.
+
+Runs: bags 830000+, 500 bags x 2 seats = 1000 games per opponent, run once.
+Reported: win rate +- 95% (ties 0.5), spread, by seat, both sides' seconds a
+move, void count, replaced-exchange count.
+
+Validity: a run with any void game is invalid; it is fixed and rerun on new
+bags, not reported as a result. A 60-game smoke test with zero voids is
+required first.
+
+Predictions:
+- Q1a: 0.62 (0.57-0.67). klve alone beat HastyBot 0.547; Quackle's static
+  player is the same kind; our sims add more.
+- Q1b: 0.55 (0.50-0.60). Same 2-ply method as our sim, but its iteration
+  budget is fixed for old hardware: in the smoke test it used 4.8 s a move
+  against our 7.4 s. We had more compute, and the result must say so.
