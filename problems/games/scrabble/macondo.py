@@ -141,13 +141,16 @@ def match(g: Game, moves, text: str) -> int:
 
 # --- duels --------------------------------------------------------------------
 
-_shell, _who, _solver, _vs, _their_solver = None, None, None, "hasty", None
+_shell, _who, _solver, _vs, _their_solver, _quackle = None, None, None, "hasty", None, None
 _seen = [0, 0, 0.0]
 
 
 def _init(who: str, vs: str = "hasty") -> None:
-    global _shell, _who, _vs, _their_solver
+    global _shell, _who, _vs, _their_solver, _quackle
     _who, _vs = who, vs
+    if vs.startswith("quackle"):
+        from scrabble import quackle
+        _quackle = quackle.Server(vs)
     if vs == "sim":
         from scrabble.endgame import Solver
         _their_solver = Solver(memory=0.02)
@@ -211,7 +214,14 @@ def winning(g: Game, moves) -> int:
     return keys.index(max(keys))
 
 
-def their_move(g: Game, moves) -> int:
+def their_move(g: Game, moves, played: list, seed: int) -> int:
+    if _quackle is not None:
+        from scrabble.quackle import Mismatch
+        text, score = _quackle.move(g, played, seed)
+        i = match(g, moves, text)
+        if moves[i].score != score:
+            raise Mismatch(f"{text} scores {score} in Quackle, {moves[i].score} here")
+        return i
     if _vs == "sim":
         if not g.bag and len(moves) > 1:
             text = _their_solver.best(g)
@@ -251,7 +261,7 @@ def _retried(choose, *args) -> int:
 
 def duel_game(seed: int, seat: int, log: bool = False) -> dict:
     g = Game(fastslow._rs, seed)
-    secs, turns, same, theirs, history = 0.0, 0, 0, 0.0, []
+    secs, turns, same, theirs, history, played = 0.0, 0, 0, 0.0, [], []
     while not g.over:
         moves = g.legal()
         t = time.perf_counter()
@@ -263,12 +273,13 @@ def duel_game(seed: int, seat: int, log: bool = False) -> dict:
                 same += match(g, moves, _shell.top(position(g))) == i
         else:
             seen = None
-            i = _retried(their_move, g, moves)
+            i = _retried(their_move, g, moves, played, seed)
             theirs += time.perf_counter() - t
         if log:
             history.append({"ours": seen is not None, "cgp": seen, "bag": len(g.bag),
                             "scores": [g.scores[seat], g.scores[1 - seat]], "move": written(moves[i]),
                             "points": moves[i].score, "secs": round(time.perf_counter() - t, 2)})
+        played.append((g.to_move, list(g.racks[g.to_move]), moves[i]))
         g.apply(moves[i])
     their_secs = theirs
     mine, theirs = g.scores[seat], g.scores[1 - seat]
@@ -296,18 +307,20 @@ def duel(who: str, bags: int, first: int, vs: str = "hasty", log: bool = False) 
     games = [json.loads(x) for x in saved.read_text().splitlines() if x.strip()] if saved.exists() else []
     done = {(x["seed"], x["seat"]) for x in games}
     jobs = [(first + k, seat) for k in range(bags) for seat in (0, 1) if (first + k, seat) not in done]
+    skipped = 0
     with ProcessPoolExecutor(int(os.environ.get("WORKERS", os.cpu_count())), initializer=_init, initargs=(who, vs)) as pool, saved.open("a") as out:
         for f in as_completed([pool.submit(duel_game, *job, log) for job in jobs]):
             try:
                 games.append(f.result())
             except ValueError as e:  # a move we could not match: skip the game, say so
+                skipped += 1
                 print(f"    skipped a game: {e}", flush=True)
                 continue
             out.write(json.dumps(games[-1]) + "\n")
             out.flush()
             if len(games) % 100 == 0:
                 print(f"    {who} vs {vs} @{first}: {value.summary(games)}", flush=True)
-    line = f"{who} vs {vs} @{first}: {value.summary(games)}"
+    line = f"{who} vs {vs} @{first}: {value.summary(games)}" + (f", SKIPPED {skipped}" if skipped else "")
     timed = [x for x in games if "secs" in x]
     if timed:
         line += f", {sum(x['secs'] for x in timed) / len(timed):.2f} s a move"
@@ -329,7 +342,7 @@ def main() -> None:
     parser.add_argument("--who", default="steady")
     parser.add_argument("--bags", type=int, default=500)
     parser.add_argument("--first", type=int, default=FIRST)
-    parser.add_argument("--vs", choices=["hasty", "sim"], default="hasty")
+    parser.add_argument("--vs", choices=["hasty", "sim", "quackle-static", "quackle-sim"], default="hasty")
     parser.add_argument("--log", action="store_true", help="keep every move we made, for diagnosis")
     args = parser.parse_args()
     duel(args.who, args.bags, args.first, args.vs, args.log)
