@@ -48,7 +48,12 @@ class Server:
             raise RuntimeError("qserve exited")
         if reply[0] != "MOVE":
             raise Mismatch(" ".join(reply))
-        kind, where, tiles, score, mine, theirs, rescored, skipped = reply[1:]
+        believed = self.p.stdout.readline().split()[1:]
+        if sorted("".join(believed)) != sorted(unseen):
+            raise Mismatch(f"Quackle's unseen tiles {''.join(believed)}, ours {unseen}")
+        kind, where, tiles, score, mine, theirs, rescored, skipped, bag = reply[1:]
+        if int(bag) != len(g.bag):
+            raise Mismatch(f"Quackle's bag holds {bag}, ours {len(g.bag)}")
         if int(rescored):
             raise Mismatch(f"Quackle rescored {rescored} earlier moves")
         if [int(mine), int(theirs)] != [g.scores[me], g.scores[1 - me]]:

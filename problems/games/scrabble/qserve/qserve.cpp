@@ -12,7 +12,8 @@
 // The opponent's real rack is never sent. When the bag is not empty Quackle
 // is given a random guess of the right size, so its bag count is right; with
 // the bag empty the unseen tiles are the opponent's rack, as in a real game.
-// Reply: MOVE <kind> <where> <tiles> <score> <my score> <their score> <moves rescored> <1 if its first choice was an illegal exchange>.
+// Reply: MOVE <kind> <where> <tiles> <score> <my score> <their score> <moves rescored> <1 if its first choice was an illegal exchange> <its bag count>,
+// then UNSEEN <the tiles Quackle believes it cannot see>.
 
 #include <QtCore>
 #include <cstdio>
@@ -139,9 +140,10 @@ int main(int argc, char **argv)
 			theirs = encoded(unseen), left = bagOf("");
 		else
 			while ((int)theirs.length() < opp) theirs.push_back(left.pluck());
-		pos.setBag(left);
+		// setOppRack tosses the old rack into the bag whatever it is told, so the bag goes last
 		pos.setCurrentPlayerRack(Quackle::Rack(encoded(rack)), false);
 		pos.setOppRack(Quackle::Rack(theirs), false);
+		pos.setBag(left);
 
 		player->setPosition(pos);
 		// Quackle's endgame code can rank an exchange first with under 7 in the bag, which its
@@ -168,7 +170,9 @@ int main(int argc, char **argv)
 		if (tiles.empty()) tiles = "-";
 		int mine = pos.currentPlayer().score(), other = 0;
 		for (const auto &p : pos.players()) if (p.id() != me) other = p.score();
-		fprintf(reply, "MOVE %s %s %s %d %d %d %d %d\n", kind, where.c_str(), tiles.c_str(), m.score, mine, other, rescored, skipped);
+		fprintf(reply, "MOVE %s %s %s %d %d %d %d %d %d\n", kind, where.c_str(), tiles.c_str(), m.score, mine, other, rescored, skipped,
+		        (int)pos.bag().size());
+		fprintf(reply, "UNSEEN %s\n", pos.unseenBag().toString().c_str());
 		fflush(reply);
 		delete game;
 	}

@@ -221,7 +221,10 @@ def their_move(g: Game, moves, played: list, seed: int) -> int:
         from scrabble.quackle import Mismatch
         text, score, skipped = _quackle.move(g, played, seed)
         _fixed[0] += skipped
-        i = match(g, moves, text)
+        try:
+            i = match(g, moves, text)
+        except ValueError as e:
+            raise Mismatch(f"Quackle's move: {e}") from e
         if moves[i].score != score:
             raise Mismatch(f"{text} scores {score} in Quackle, {moves[i].score} here")
         return i
