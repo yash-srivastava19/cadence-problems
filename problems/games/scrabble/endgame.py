@@ -55,8 +55,10 @@ class Solver:
         self.send(f"endgame -plies {PLIES} -maxtime {seconds} -threads 1")
         start = time.perf_counter()
         self.calls += 1
+        said = []
         for line in self.p.stdout:
             line = re.sub(r"\x1b\[[0-9;]*m", "", line).strip()
+            said = (said + [line])[-8:]
             m = BEST.search(line)
             if m:
                 self.secs += time.perf_counter() - start
@@ -65,7 +67,7 @@ class Solver:
                 self.secs += time.perf_counter() - start
                 self.fails += 1
                 return None
-        raise RuntimeError("macondo exited")
+        raise RuntimeError(f"macondo exited on {cgp.encode(g)} rack {''.join(g.racks[g.to_move])}: {' | '.join(said)}")
 
     def final(self, g: Game) -> int:
         """Final spread for the side to move, under best play from here."""

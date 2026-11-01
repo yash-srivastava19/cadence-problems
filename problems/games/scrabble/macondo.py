@@ -144,6 +144,7 @@ def match(g: Game, moves, text: str) -> int:
 
 _shell, _who, _solver, _vs, _their_solver, _quackle = None, None, None, "hasty", None, None
 _seen = [0, 0, 0.0]
+_crashes = [0]
 _fixed = [0]  # illegal exchanges Quackle ranked first, replaced by its best legal move
 
 
@@ -175,13 +176,27 @@ def _init(who: str, vs: str = "hasty") -> None:
     _shell = Shell()
 
 
+def _restart_solver() -> None:
+    global _solver
+    from scrabble.endgame import Solver
+
+    dead, _solver = _solver, Solver(memory=0.02)
+    _solver.calls, _solver.fails, _solver.secs = dead.calls, dead.fails + 1, dead.secs
+    _crashes[0] += 1
+
+
 def ours(g: Game, moves, seed: int) -> int:
     if _who == "steady":
         return fast(g, moves, STEADY)
     if _who.split("+")[0] in ("klv", "klve"):
         from scrabble import leaves
         if _solver is not None and not g.bag and len(moves) > 1:
-            text = _solver.best(g)
+            try:
+                text = _solver.best(g)
+            except RuntimeError as e:  # it died on this position: play on as if it gave up, and count it
+                print(f"    solver crashed: {e}", flush=True)
+                _restart_solver()
+                text = None
             if text is not None:
                 return match(g, moves, text)
         extras = _who.split("+")[1:]
@@ -268,7 +283,7 @@ def _retried(choose, *args) -> int:
 def duel_game(seed: int, seat: int, log: bool = False) -> dict:
     g = Game(fastslow._rs, seed)
     secs, turns, same, theirs, history, played = 0.0, 0, 0, 0.0, [], []
-    _fixed[0] = 0
+    _fixed[0] = _crashes[0] = 0
     while not g.over:
         moves = g.legal()
         t = time.perf_counter()
@@ -295,6 +310,8 @@ def duel_game(seed: int, seat: int, log: bool = False) -> dict:
            "their_secs": round(their_secs, 1)}
     if _quackle is not None:
         out["quackle_fixed"] = _fixed[0]
+    if _crashes[0]:
+        out["solver_crashed"] = _crashes[0]
     if log:
         out["history"] = history
     solver = _solver
@@ -343,6 +360,8 @@ def duel(who: str, bags: int, first: int, vs: str = "hasty", log: bool = False) 
             line += f", their s a move {sum(x['their_secs'] for x in timed) / sum(x['turns'] for x in timed):.2f}"
         if who == "klv":
             line += f", same move as HastyBot {sum(x['same'] for x in timed) / sum(x['turns'] for x in timed):.1%}"
+    if any("solver_crashed" in x for x in games):
+        line += f", our solver crashed {sum(x.get('solver_crashed', 0) for x in games)} times (played on as if it gave up)"
     print(line, flush=True)
     with (OUT / "duels.txt").open("a") as out:
         out.write(line + "\n")
