@@ -1,0 +1,62 @@
+    klve+peg+sim vs quackle-static @830000: win 0.595 ±0.096, spread +20.3 ±21.1 (100 games)
+    klve+peg+sim vs quackle-static @830000: win 0.600 ±0.068, spread +17.3 ±14.6 (200 games)
+    klve+peg+sim vs quackle-static @830000: win 0.593 ±0.056, spread +13.1 ±11.7 (300 games)
+    klve+peg+sim vs quackle-static @830000: win 0.610 ±0.048, spread +16.2 ±10.8 (400 games)
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/ubuntu/games/scrabble/macondo.py", line 262, in _retried
+    return choose(*args)
+           ^^^^^^^^^^^^^
+  File "/home/ubuntu/games/scrabble/macondo.py", line 184, in ours
+    text = _solver.best(g)
+           ^^^^^^^^^^^^^^^
+  File "/home/ubuntu/games/scrabble/endgame.py", line 68, in best
+    raise RuntimeError("macondo exited")
+RuntimeError: macondo exited
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/concurrent/futures/process.py", line 263, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/games/scrabble/macondo.py", line 277, in duel_game
+    i = _retried(ours, g, moves, seed)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/games/scrabble/macondo.py", line 265, in _retried
+    return choose(*args)
+           ^^^^^^^^^^^^^
+  File "/home/ubuntu/games/scrabble/macondo.py", line 184, in ours
+    text = _solver.best(g)
+           ^^^^^^^^^^^^^^^
+  File "/home/ubuntu/games/scrabble/endgame.py", line 68, in best
+    raise RuntimeError("macondo exited")
+RuntimeError: macondo exited
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/ubuntu/games/scrabble/macondo.py", line 364, in <module>
+    main()
+  File "/home/ubuntu/games/scrabble/macondo.py", line 360, in main
+    duel(args.who, args.bags, args.first, args.vs, args.log)
+  File "/home/ubuntu/games/scrabble/macondo.py", line 323, in duel
+    games.append(f.result())
+                 ^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+RuntimeError: macondo exited
+    klve+peg+sim vs quackle-static @830000: win 0.604 ±0.043, spread +15.2 ±9.7 (500 games)
+    klve+peg+sim vs quackle-static @830000: win 0.598 ±0.039, spread +15.3 ±8.8 (600 games)
+    klve+peg+sim vs quackle-static @830000: win 0.595 ±0.036, spread +15.1 ±8.0 (700 games)
+    klve+peg+sim vs quackle-static @830000: win 0.598 ±0.034, spread +15.4 ±7.4 (800 games)
+    klve+peg+sim vs quackle-static @830000: win 0.597 ±0.032, spread +16.1 ±6.9 (900 games)
+    klve+peg+sim vs quackle-static @830000: win 0.592 ±0.030, spread +15.5 ±6.6 (1000 games)
+klve+peg+sim vs quackle-static @830000: win 0.592 ±0.030, spread +15.5 ±6.6 (1000 games), 7.68 s a move, endgame solves 1588 (gave up 0, 2.2 s each), Quackle illegal exchanges replaced 0, their s a move 0.00

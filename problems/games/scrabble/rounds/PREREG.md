@@ -742,3 +742,30 @@ Quackle's bag count and unseen tiles, and either differing from ours voids the
 game. The replacement path stays as a guard and is expected to count 0. All
 earlier smoke games, and the 4.8 s a move figure, came from the broken setup
 and are discarded; the compute comparison will come from the real runs.
+
+Q1 interruption (2026-11-01, written before the remaining games ran): both
+runs stopped early, at 622 (Championship) and 490 (Static) saved games, when
+our own Macondo endgame solver died and the retry died too. No game was void
+and Quackle was not involved. Fix (e758081): a solver crash falls back exactly
+as a solver give-up does, and is counted per game. The missing games were then
+played on the same bags with the same settings; saved games were not touched.
+The games in flight at the crash were never saved, so none is dropped.
+
+Q1 outcome (2026-11-01). Smoke tests 60 games each, zero voids. Both runs
+1000 games, 1000 distinct (bag, seat) pairs, 0 voids, 0 replaced exchanges,
+0 solver crashes after the resume (the crash did not recur; cause unknown),
+0 solver give-ups.
+
+| | Win | Spread | Seat 0 / seat 1 win | Our s a move | Theirs |
+|---|---|---|---|---|---|
+| Q1a vs Static | **0.592 ±0.030** | +15.5 ±6.6 | 0.635 / 0.548 | 7.68 | ~0 |
+| Q1b vs Championship | **0.520 ±0.031** | +8.4 ±6.1 | 0.596 / 0.445 | 8.01 | 4.93 |
+
+- Q1a: predicted 0.62 (0.57-0.67). Inside the range, a little under the
+  centre. A clear win over Quackle's static player.
+- Q1b: predicted 0.55 (0.50-0.60). Inside the range, under the centre. The
+  win interval (0.489-0.551) includes 0.5, so this is level, not a shown win;
+  the spread interval (+2.3 to +14.5) is clear of zero. We used 1.6x its
+  time a move: its iteration budget is fixed and was not raised.
+
+Not shown: anything about the real BestBot, or Quackle given equal time.
